@@ -36,6 +36,7 @@ namespace hUtils {
     public:
         HUTIL_API void reject            (const std::string& msg,
                                           int lines = 1);
+        HUTIL_API void trim              (std::string& text);
         HUTIL_API void toLine            (char character = '-'); //  Print a line of repeated characters
         HUTIL_API void toCentered        (std::string text,      //  Prints centered text.
                                           int colorCode = 0,

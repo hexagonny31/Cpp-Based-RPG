@@ -8,11 +8,11 @@
 #include <algorithm>
 
 struct Attributes {
-    int vigor        = 0;
-    int strength     = 0;
-    int endurance    = 0;
-    int intelligence = 0;
-    int dexterity    = 0;
+    int vigor        = 0; // increases health points & mana points.
+    int strength     = 0; // increases physical damage.
+    int endurance    = 0; // increases damage reduction.
+    int intelligence = 0; // increases magical damage & mana points.
+    int dexterity    = 0; // increases dodge chance & critical chance.
 };
 
 struct Stats  // shared between player & monster
@@ -70,19 +70,24 @@ struct Stats  // shared between player & monster
 
 struct Item {
     std::string name;
+    std::string id;
 
     // attribute modifiers.
-    int vigorMod        = 0;
-    int strengthMod     = 0;
-    int enduranceMod    = 0;
-    int intelligenceMod = 0;
-    int dexterityMod    = 0;
+    int vigor_mod        = 0;
+    int strength_mod     = 0;
+    int endurance_mod    = 0;
+    int intelligence_mod = 0;
+    int dexterity_mod    = 0;
 
     // stat modifiers.
-    double damageBonus      = 0.0; // extra weapon damage
-    double resistBonus      = 0.0; // extra armor/resist
-    double dodgeChanceBonus = 0.0; // extra dodge
+    double increase_HP  = 0.0;  // adds health points
+    double health_bonus = 0.0;  // extra health points
+    double damage_bonus = 0.0;  // extra weapon damage
+    double resist_bonus = 0.0;  // extra armor/resist
+    double dodge_bonus  = 0.0;  // extra dodge
 
+    bool equipped = false;
+    bool equippable;
     // other stuff maybe in the future like rarity bonuses and shit like that.
 };
 

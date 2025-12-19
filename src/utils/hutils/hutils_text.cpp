@@ -31,6 +31,19 @@ namespace hUtils {
         text.clearAbove(lines);
     }
 
+    void trim(string& text)
+    {
+        const string whitespace = " \t\n\r\f\v";
+        size_t first = text.find_first_not_of(whitespace);
+        if(std::string::npos == first) {
+            text.clear();
+            return;
+        }
+        size_t last = text.find_last_not_of(whitespace);
+        text.erase(0, first);
+        text.erase(last - first + 1);
+    }
+
     void Text::toLine(char character)
     {
         cout << string(SCREEN_WIDTH - 1, character) << '\n';
