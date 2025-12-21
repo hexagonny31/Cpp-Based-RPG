@@ -40,6 +40,7 @@ bool load(const std::string& FILE_NAME) {
         item.dexterity_mod    = entry.value("dexterity_mod", 0);
 
         item.increase_HP      = entry.value("increase_HP", 0);
+        item.base_damage      = entry.value("base_damage", 0);
         item.health_bonus     = entry.value("health_bonus", 0);
         item.damage_bonus     = entry.value("damage_bonus", 0);
         item.resist_bonus     = entry.value("resist_bonus", 0);

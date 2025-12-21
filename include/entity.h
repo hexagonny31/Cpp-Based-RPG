@@ -17,18 +17,24 @@ struct Attributes {
 
 struct Stats  // shared between player & monster
 {
-    static constexpr double max_bonus = 50.0;
+    static constexpr double max_bonus = 250.0;
 
-    double current_health = 100.0;
+    double current_health = 100.0;  // fallback value. just incase if it doesn't update initially.
 
     const Attributes& attr;
+    const Player* owner = nullptr;
 
-    explicit Stats(const Attributes& a) : attr(a) {}
+    explicit Stats(const Attributes& a, const Player* p = nullptr) : attr(a), owner(p) {}
 
     double currentHealth() const { return current_health; }
     double totalHealth()   const {
         const double default_health = 100.0;
-        double bonus_health = (max_bonus * attr.vigor) / (100.0 * (max_bonus + attr.vigor));
+        double bonus_health = 10.0 * attr.vigor;
+        if(owner) {
+            for(const Item* item : owner->equipment) {
+                if(item && item->equipped) bonus_health += item->health_bonus;
+            }
+        }
         return default_health + bonus_health;
     }
 
@@ -41,22 +47,51 @@ struct Stats  // shared between player & monster
     //  Place-holder boots dodge chance bonus.
     double tempEquipBonus = 0.07;
 
-    double damage() const
-    {
-        double baseDamage = (max_bonus * attr.strength) / (100.0 * (max_bonus + attr.strength));
-        return tempWeaponDamage * (1 + baseDamage);
+    double damage() const {
+        double base_damage = 10.0;
+        int total_strength = attr.strength;
+        if(owner) {
+            for(const Item* item : owner->equipment) {
+                if(item && item->equipped) total_strength += item->strength_mod;
+            }
+            Item* weapon = owner->getEquipment(Slot::MainHand);
+            if(weapon && weapon->equipped) {
+                base_damage += weapon->base_damage;
+            }
+        }
+        double strength_scaling = (max_bonus * total_strength) / (100.0 * (max_bonus + total_strength));
+        double total_weapon_damage = base_damage;
+        return total_weapon_damage * (1.0 + strength_scaling);
     }
 
-    double physicalResist() const
-    {
-        double baseResistance = (max_bonus * attr.endurance) / (100.0 * (max_bonus + attr.endurance));
-        return tempHelm + tempChest + tempBoots + baseResistance;
+    double physicalResist() const {
+        int total_endurance = attr.endurance;
+        double total_resist_bonus = 0.0;
+        if(owner) {
+            for(const Item* item : owner->equipment) {
+                if(item && item->equipped) {
+                    total_endurance += item->endurance_mod;    // from any equipment
+                    total_resist_bonus += item->resist_bonus;  // from armor and shields
+                }
+            }
+        }
+        double base_resist = (max_bonus * total_endurance) / (100.0 * (max_bonus + total_endurance));
+        return total_resist_bonus + base_resist;
     }
 
-    double dodgeChance() const
-    {
-        double baseDodgeChance = (max_bonus * attr.dexterity) / (100.0 * (max_bonus + attr.dexterity));
-        return std::min(1.0, 0.15 + tempEquipBonus + baseDodgeChance);
+    double dodgeChance() const {
+        int total_dexterity = attr.dexterity;
+        double total_dodge_bonus = 0.0;
+        if(owner) {
+            for(const Item* item : owner->equipment) {
+                if(item && item->equipped) {
+                    total_dexterity += item->dexterity_mod;  // from any equipment
+                    total_dodge_bonus += item->dodge_bonus;  // from armor and shields
+                }
+            }
+        }
+        double base_dodge = (max_bonus * attr.dexterity) / (100.0 * (max_bonus + attr.dexterity));
+        return std::min(1.0, 0.15 + total_dodge_bonus + base_dodge);
     }
 
     bool isAlive() const { return current_health > 0.0; }
@@ -81,6 +116,7 @@ struct Item {
 
     // stat modifiers.
     double increase_HP  = 0.0;  // adds health points
+    double base_damage  = 0.0;  // flat damage of a weapon
     double health_bonus = 0.0;  // extra health points
     double damage_bonus = 0.0;  // extra weapon damage
     double resist_bonus = 0.0;  // extra armor/resist
@@ -110,7 +146,7 @@ struct Player
     std::vector<Item*> inventory;
     std::vector<Item*> equipment;
 
-    Player() : stats(attributes), equipment(static_cast<size_t>(Slot::COUNT), nullptr) {}
+    Player() : stats(attributes, this), equipment(static_cast<size_t>(Slot::COUNT), nullptr) {}
 
     std::string getName()                   const { return name; }
     int         getAllocation()             const { return allocation_pts; }
@@ -122,6 +158,21 @@ struct Player
 
     void setName      (const std::string& newName)   { name = newName; }
     void setAllocation(int newAllocation)            { allocation_pts = newAllocation; }
+
+    void equipItem  (Item* item, Slot slot) {
+        if(!item || !item->equippable) return;
+        Item* current = getEquipment(slot);
+        if(current) current->equipped = false;
+
+        equipment[static_cast<size_t>(slot)] = item;
+        item->equipped = true;
+    }
+    void unequipItem(Slot slot) {
+        Item* current = getEquipment(slot);
+        if(!current) return;
+        current->equipped = false;
+        equipment[static_cast<size_t>(slot)] = nullptr;
+    }
 };
 
 #endif
