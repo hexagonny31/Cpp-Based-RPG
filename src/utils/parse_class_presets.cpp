@@ -2,6 +2,7 @@
 #include "class_presets.h"
 #include "json.hpp"
 
+#include <iostream>
 #include <fstream>
 #include <optional>
 #include <vector>
@@ -11,12 +12,18 @@ using json = nlohmann::json;
 
 std::optional<std::vector<ClassPreset>> parsePresets(const std::string &FILE_NAME) {
     std::ifstream file(FILE_NAME);
-    if(!file.is_open()) return std::nullopt;
+    if(!file.is_open()) {
+        std::cout << "Failed to open " << FILE_NAME << '\n';
+        hUtils::sleep(2000);
+        return std::nullopt;
+    }
 
     json j;
     try {
         file >> j;
     } catch(const json::parse_error&) {
+        std::cout << "Failed to parse " << FILE_NAME << '\n';
+        hUtils::sleep(2000);
         return std::nullopt;  // if JSON file is not valid.
     }
     if(!j.is_array()) return std::nullopt;
@@ -41,6 +48,10 @@ std::optional<std::vector<ClassPreset>> parsePresets(const std::string &FILE_NAM
         preset.attribute = a;
         result.push_back(preset);
     }
-    if(result.empty()) return std::nullopt;  // if JSON is valid but logically wrong.
+    if(result.empty()) {
+        std::cout << "No valid presets found in " << FILE_NAME << '\n';
+        hUtils::sleep(2000);
+        return std::nullopt;  // if JSON is valid but logically wrong.
+    }
     return result;
 }

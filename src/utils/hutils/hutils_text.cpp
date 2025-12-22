@@ -24,14 +24,14 @@ namespace hUtils {
 
     Text text;
 
-    void reject(const string& msg, int lines)
+    void Text::reject(const string& msg, int lines)
     {
         std::cout << msg;
         sleep(2000);
         text.clearAbove(lines);
     }
 
-    void trim(string& text)
+    void Text::trim(string& text)
     {
         const string whitespace = " \t\n\r\f\v";
         size_t first = text.find_first_not_of(whitespace);

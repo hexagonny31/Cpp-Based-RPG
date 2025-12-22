@@ -1,7 +1,7 @@
 #pragma once
 
 #include "hutils.h"
-#include "entity.h"
+#include "common.h"
 #include "json.hpp"
 
 #include <string>
@@ -41,6 +41,9 @@ struct Item {
 };
 
 struct ItemDatabase {
+private:
+    ItemDatabase() = default;
+    static std::unordered_map<std::string, Item> itemDatabase;
 public:
     static ItemDatabase& instance() {
         static ItemDatabase db;
@@ -68,12 +71,14 @@ public:
             item.name       = entry["name"].get<std::string>();
             item.equippable = entry["equippable"].get<bool>();
 
-            item.attribute.vigor        = entry.value("vigor_mod", 0);
-            item.attribute.strength     = entry.value("strength_mod", 0);
-            item.attribute.endurance    = entry.value("endurance_mod", 0);
-            item.attribute.intelligence = entry.value("intelligence_mod", 0);
-            item.attribute.dexterity    = entry.value("dexterity_mod", 0);
-
+            Attributes a;
+            a.vigor        = entry.value("vigor", 0);
+            a.strength     = entry.value("strength", 0);
+            a.endurance    = entry.value("endurance", 0);
+            a.intelligence = entry.value("intelligence", 0);
+            a.dexterity    = entry.value("dexterity", 0);
+            item.attribute = a;
+            
             item.increase_HP  = entry.value("increase_HP", 0);
             item.base_damage  = entry.value("base_damage", 0);
             item.health_bonus = entry.value("health_bonus", 0);
@@ -90,7 +95,4 @@ public:
         if(cartesian != itemDatabase.end()) return cartesian->second;
         return std::nullopt;
     }
-private:
-    ItemDatabase() = default;
-    static std::unordered_map<std::string, Item> itemDatabase;
 };

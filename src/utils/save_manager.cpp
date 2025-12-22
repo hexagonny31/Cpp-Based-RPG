@@ -1,15 +1,17 @@
 #include "hutils.h"
 #include "class_presets.h"
+#include "save_manager.h"
 #include "item_database.hpp"
 #include "entity.h"
 
 #include <unordered_map>
 #include <filesystem>
+#include <stdexcept>
 
 using namespace std::string_literals;
 namespace fs = std::filesystem;
 
-std::optional<Player> newSave() {
+Player newCharacterSave() {
     //  deciding for the character name.
     hUtils::text.clearAll();
     std::cout << "Creating new save...\n";
@@ -18,23 +20,22 @@ std::optional<Player> newSave() {
         init_name = "";
         std::cout << "Enter your character name (2 - 64 characters)\n> ";
         std::getline(std::cin, init_name);
-        hUtils::text.trim(init_name);
         if(init_name.length() > 64) {
             hUtils::text.reject("Name can't be over 64 characters!", 2);
             continue;
         } else if(init_name.length() < 2) {
             hUtils::text.reject("Name can't be under 2 characters!", 2);
             continue;
+        } else {
+            std::cout << '\n';
+            break;
         }
-        std::cout << '\n';
-        break;
     }
     //  creating action.
     const std::string PRESET_JSON_NAME = "class_preset.json";
-    std::optional<std::vector<ClassPreset>> init = parsePresets(PRESET_JSON_NAME);
+    std::optional<std::vector<ClassPreset>> init = parsePresets();
     if(!init) {
-        hUtils::text.reject("Failed to load "s + PRESET_JSON_NAME);
-        return std::nullopt;
+        throw LoadFailed("Failed to load "s + PRESET_JSON_NAME);
     }
     const std::vector<ClassPreset> class_presets = *init;
     
@@ -44,7 +45,7 @@ std::optional<Player> newSave() {
         std::string temp = class_presets[i].class_name;
         if(temp.empty()) {
             hUtils::text.reject("Preset name is missing at index "s + std::to_string(i));
-            return std::nullopt;
+            continue;
         }
         lookup[hUtils::text.toLowerCase(temp)] = i;
         class_names.push_back(temp);
@@ -62,7 +63,7 @@ std::optional<Player> newSave() {
         hUtils::text.trim(input);
         input = hUtils::text.toLowerCase(input);
 
-        if(input == "exit" || input == "e") return std::nullopt;
+        if(input == "exit" || input == "e") throw UserCancelled("Character creation cancelled by user.");
 
         std::unordered_map<std::string, int>::iterator cartesian = lookup.find(input);
         if(cartesian == lookup.end()) {
@@ -83,13 +84,13 @@ std::optional<Player> newSave() {
     new_player.attribute.intelligence = class_preset.attribute.intelligence;
     new_player.attribute.dexterity    = class_preset.attribute.dexterity;
 
-    new_player.stats.updateHealth();
+    new_player.updateHealth();
 
     new_player.addToInventory(class_preset.main_hand);
     new_player.addToInventory(class_preset.off_hand);
 
     //  save the new player into a file.
-
+    saveToFile(new_player);
     return new_player;
 }
 
@@ -100,8 +101,8 @@ void saveToFile(const Player &player) {
 
     j["name"] = player.getName();
     j["allocation_pts"] = player.getAllocationPts();
-    j["current_health"] = player.stats.getCurrentHealth();
-    j["current_mana"]   = player.stats.getCurrentMana();
+    j["current_health"] = player.getCurrentHealth();
+    j["current_mana"]   = player.getCurrentMana();
 
     j["attributes"]["vigor"]        = player.attribute.vigor;
     j["attributes"]["strength"]     = player.attribute.strength;
@@ -119,7 +120,7 @@ void saveToFile(const Player &player) {
     }
 
     std::ofstream output(FILE_NAME);
-    if(output.is_open()) {
-        output << j.dump(4);
-    }
+    if(output.is_open()) output << j.dump(4);
 }
+
+//  loading and parsing save files are next here.

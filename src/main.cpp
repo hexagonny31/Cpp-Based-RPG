@@ -1,5 +1,6 @@
 #include "hutils.h"
 #include "item_database.hpp"
+#include "save_manager.h"
 
 #include <iostream>
 
@@ -12,21 +13,36 @@ int main() {
 
     //  create/select save.
     char input;
+    Player player;
     while(true) {
         cout << "Create new save [Q]\n" <<
                 "Select existing save [W]\n" <<
                 "Exit program [E]\n";
         input = charIn();
-
-        if(input == 'e') return 0;    
-        switch(input) {
-            case 'q': //  new save.
-                
-                
-                break;
-            case 'w': // select save.
-                break;
-            default: hUtils::text.reject("Invalid option!", 4);
+   
+        try {
+            switch(input) {
+                case 'q': //  new save.
+                    player = newCharacterSave();
+                    break;
+                case 'w': // select save.
+                    cout << "Testing";
+                    break;
+                case 'e':
+                    return 0;
+                default:
+                    hUtils::text.reject("Invalid option!", 4);
+                    break;
+            }
+        } catch(const LoadFailed& e) {
+            hUtils::text.reject(e.what(), 4);
+            continue;
+        } catch(const UserCancelled& e) {
+            hUtils::text.reject(e.what(), 4);
+            continue;
+        } catch(const std::exception& e) {
+            hUtils::text.reject(e.what(), 4);
+            continue;
         }
     }
 
