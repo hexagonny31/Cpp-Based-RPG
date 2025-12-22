@@ -6,11 +6,10 @@
 #include <unordered_map>
 #include <filesystem>
 
+using namespace std::string_literals;
 namespace fs = std::filesystem;
 
 std::optional<Player> newSave() {
-    using namespace std::string_literals;
-
     //  deciding for the character name.
     hUtils::text.clearAll();
     std::cout << "Creating new save...\n";
@@ -32,12 +31,12 @@ std::optional<Player> newSave() {
     }
     //  creating action.
     const std::string PRESET_JSON_NAME = "class_preset.json";
-    std::optional<std::vector<ClassPresets>> init = parsePresets(PRESET_JSON_NAME);
+    std::optional<std::vector<ClassPreset>> init = parsePresets(PRESET_JSON_NAME);
     if(!init) {
         hUtils::text.reject("Failed to load "s + PRESET_JSON_NAME);
         return std::nullopt;
     }
-    const std::vector<ClassPresets> class_presets = *init;
+    const std::vector<ClassPreset> class_presets = *init;
     
     std::unordered_map<std::string, int> lookup;
     std::vector<std::string> class_names;
@@ -52,7 +51,7 @@ std::optional<Player> newSave() {
     }
     //  the actual user interaction goes here.
     Player new_player;
-    ClassPresets class_preset;
+    ClassPreset class_preset;
     while(true) {
         std::string input = "";
         std::cout << "Choose a preset for your character: ";
@@ -75,18 +74,52 @@ std::optional<Player> newSave() {
         break;
     }
     //  setting the preset to the new player object.
-    new_player.name                    = init_name;
-    new_player.allocation_pts          = class_preset.starting_pts;
-    new_player.attributes.vigor        = class_preset.attributes.vigor;
-    new_player.attributes.strength     = class_preset.attributes.strength;
-    new_player.attributes.endurance    = class_preset.attributes.endurance;
-    new_player.attributes.intelligence = class_preset.attributes.intelligence;
-    new_player.attributes.dexterity    = class_preset.attributes.dexterity;
+    new_player.name                   = init_name;
+    new_player.allocation_pts         = class_preset.starting_pts;
+
+    new_player.attribute.vigor        = class_preset.attribute.vigor;
+    new_player.attribute.strength     = class_preset.attribute.strength;
+    new_player.attribute.endurance    = class_preset.attribute.endurance;
+    new_player.attribute.intelligence = class_preset.attribute.intelligence;
+    new_player.attribute.dexterity    = class_preset.attribute.dexterity;
 
     new_player.stats.updateHealth();
-    //  equipment here very soon.
+
+    new_player.addToInventory(class_preset.main_hand);
+    new_player.addToInventory(class_preset.off_hand);
+
+    //  save the new player into a file.
 
     return new_player;
 }
 
 //  saving progress into a file. once i'm done with the new save utility.
+void saveToFile(const Player &player) {
+    const std::string& FILE_NAME = player.getName() + ".save";
+    json j;
+
+    j["name"] = player.getName();
+    j["allocation_pts"] = player.getAllocationPts();
+    j["current_health"] = player.stats.getCurrentHealth();
+    j["current_mana"]   = player.stats.getCurrentMana();
+
+    j["attributes"]["vigor"]        = player.attribute.vigor;
+    j["attributes"]["strength"]     = player.attribute.strength;
+    j["attributes"]["endurance"]    = player.attribute.endurance;
+    j["attributes"]["intelligence"] = player.attribute.intelligence;
+    j["attributes"]["dexterity"]    = player.attribute.dexterity;
+
+    j["equipment"] = json::array();
+    for(const auto& item : player.equipment) {
+        j["equipment"].push_back(item->id);
+    }
+    j["inventory"] = json::array();
+    for(const auto& item : player.inventory) {
+        j["inventory"].push_back(item->id);
+    }
+
+    std::ofstream output(FILE_NAME);
+    if(output.is_open()) {
+        output << j.dump(4);
+    }
+}

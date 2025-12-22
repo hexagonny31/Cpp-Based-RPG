@@ -7,7 +7,7 @@ using std::cout;
 using std::cin;
 
 int main() {
-    ItemDatabase::load();
+    ItemDatabase::instance().load();
     std::string FILE_NAME;
 
     //  create/select save.

@@ -9,7 +9,7 @@
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
-std::optional<std::vector<ClassPresets>> parsePresets(const std::string &FILE_NAME) {
+std::optional<std::vector<ClassPreset>> parsePresets(const std::string &FILE_NAME) {
     std::ifstream file(FILE_NAME);
     if(!file.is_open()) return std::nullopt;
 
@@ -20,9 +20,9 @@ std::optional<std::vector<ClassPresets>> parsePresets(const std::string &FILE_NA
         return std::nullopt;  // if JSON file is not valid.
     }
     if(!j.is_array()) return std::nullopt;
-    std::vector<ClassPresets> result;
+    std::vector<ClassPreset> result;
     for(auto& entry : j) {
-        ClassPresets preset;
+        ClassPreset preset;
         if(!entry.contains("class_name")) continue;
         if(!entry.contains("main_hand")) continue;
         
@@ -38,7 +38,7 @@ std::optional<std::vector<ClassPresets>> parsePresets(const std::string &FILE_NA
         a.endurance    = attr.value("endurance", 0);
         a.intelligence = attr.value("intelligence", 0);
         a.dexterity    = attr.value("dexterity", 0);
-        preset.attributes = a;
+        preset.attribute = a;
         result.push_back(preset);
     }
     if(result.empty()) return std::nullopt;  // if JSON is valid but logically wrong.
