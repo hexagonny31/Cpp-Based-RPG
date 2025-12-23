@@ -19,7 +19,7 @@ struct Player
     double current_health = 100.0;  // fallback value. just incase if it doesn't update initially.
     double current_mana   = 100.0;
 
-    std::vector<Item*> inventory;
+    std::vector<Item> inventory;
     std::vector<Item*> equipment;
 
     Player() : equipment(static_cast<size_t>(Slot::COUNT), nullptr) {}
@@ -37,8 +37,7 @@ struct Player
     bool addToInventory(const std::string& id) {
         auto init = ItemDatabase::instance().find(id);
         if(!init) return false;
-        Item* new_item = new Item(init.value());
-        inventory.push_back(new_item);
+        inventory.push_back(init.value());
         return true;
     }
     void equipItem(Item* item, Slot slot) {

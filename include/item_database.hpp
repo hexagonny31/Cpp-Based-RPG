@@ -70,13 +70,15 @@ public:
             item.id         = entry["id"].get<std::string>();
             item.name       = entry["name"].get<std::string>();
             item.equippable = entry["equippable"].get<bool>();
+            item.base_damage = entry.value("base_damage", 0.0);
 
             Attributes a;
-            a.vigor        = entry.value("vigor", 0);
-            a.strength     = entry.value("strength", 0);
-            a.endurance    = entry.value("endurance", 0);
-            a.intelligence = entry.value("intelligence", 0);
-            a.dexterity    = entry.value("dexterity", 0);
+            auto attr = entry["attribute"];
+            a.vigor        = attr.value("vigor", 0);
+            a.strength     = attr.value("strength", 0);
+            a.endurance    = attr.value("endurance", 0);
+            a.intelligence = attr.value("intelligence", 0);
+            a.dexterity    = attr.value("dexterity", 0);
             item.attribute = a;
             
             item.increase_HP  = entry.value("increase_HP", 0);

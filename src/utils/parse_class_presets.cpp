@@ -38,7 +38,8 @@ std::optional<std::vector<ClassPreset>> parsePresets(const std::string &FILE_NAM
         preset.off_hand     = entry.value("off_hand", "");
         preset.starting_pts = entry.value("starting_points", 5);
 
-        auto attr = entry["attributes"];
+        if(!entry.contains("attribute") || !entry["attribute"].is_object()) continue;
+        auto attr = entry["attribute"];
         Attributes a;
         a.vigor        = attr.value("vigor", 0);
         a.strength     = attr.value("strength", 0);

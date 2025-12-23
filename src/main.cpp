@@ -24,6 +24,7 @@ int main() {
             switch(input) {
                 case 'q': //  new save.
                     player = newCharacterSave();
+                    saveToFile(player);
                     break;
                 case 'w': // select save.
                     cout << "Testing";
@@ -32,7 +33,7 @@ int main() {
                     return 0;
                 default:
                     hUtils::text.reject("Invalid option!", 4);
-                    break;
+                    continue;
             }
         } catch(const LoadFailed& e) {
             hUtils::text.reject(e.what(), 4);
@@ -44,14 +45,12 @@ int main() {
             hUtils::text.reject(e.what(), 4);
             continue;
         }
+        break;
     }
 
+    cout << player.getName() << "'s save file selected.\n";
+    hUtils::sleep(5000);
     //  parse save files.
 
-    while(true) {
-        char input;
-        cout << "Menu";
-        if(input == 'e') break;
-    }
     return 0;
 }

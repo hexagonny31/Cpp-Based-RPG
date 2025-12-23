@@ -4,6 +4,7 @@
 #include "item_database.hpp"
 #include "entity.h"
 
+#include <iostream>
 #include <unordered_map>
 #include <filesystem>
 #include <stdexcept>
@@ -55,7 +56,7 @@ Player newCharacterSave() {
     ClassPreset class_preset;
     while(true) {
         std::string input = "";
-        std::cout << "Choose a preset for your character: ";
+        std::cout << "Choose a preset for your character: \n";
         hUtils::table.setElements(class_names);
         hUtils::table.toColumn("left", 16, 3);
         std::cout << "> ";
@@ -75,8 +76,8 @@ Player newCharacterSave() {
         break;
     }
     //  setting the preset to the new player object.
-    new_player.name                   = init_name;
-    new_player.allocation_pts         = class_preset.starting_pts;
+    new_player.setName(init_name);
+    new_player.setAllocation(class_preset.starting_pts);
 
     new_player.attribute.vigor        = class_preset.attribute.vigor;
     new_player.attribute.strength     = class_preset.attribute.strength;
@@ -84,19 +85,31 @@ Player newCharacterSave() {
     new_player.attribute.intelligence = class_preset.attribute.intelligence;
     new_player.attribute.dexterity    = class_preset.attribute.dexterity;
 
+    std::cout << "Checkpoint\n";
+    hUtils::sleep(2000);
+
     new_player.updateHealth();
 
-    new_player.addToInventory(class_preset.main_hand);
-    new_player.addToInventory(class_preset.off_hand);
+    if (!class_preset.main_hand.empty()) {
+        new_player.addToInventory(class_preset.main_hand);
+    } else {
+        std::cout << "Warning: main_hand is empty, skipping.\n";
+    }
 
-    //  save the new player into a file.
-    saveToFile(new_player);
+    if (!class_preset.off_hand.empty()) {
+        new_player.addToInventory(class_preset.off_hand);
+    } else {
+        std::cout << "Warning: off_hand is empty, skipping.\n";
+    }
+
     return new_player;
 }
 
 //  saving progress into a file. once i'm done with the new save utility.
 void saveToFile(const Player &player) {
-    const std::string& FILE_NAME = player.getName() + ".save";
+    std::string name = player.getName();
+    hUtils::text.trim(name);
+    const std::string& FILE_NAME = "saves/" + name + ".save";
     json j;
 
     j["name"] = player.getName();
@@ -104,23 +117,28 @@ void saveToFile(const Player &player) {
     j["current_health"] = player.getCurrentHealth();
     j["current_mana"]   = player.getCurrentMana();
 
-    j["attributes"]["vigor"]        = player.attribute.vigor;
-    j["attributes"]["strength"]     = player.attribute.strength;
-    j["attributes"]["endurance"]    = player.attribute.endurance;
-    j["attributes"]["intelligence"] = player.attribute.intelligence;
-    j["attributes"]["dexterity"]    = player.attribute.dexterity;
+    j["attribute"]["vigor"]        = player.attribute.vigor;
+    j["attribute"]["strength"]     = player.attribute.strength;
+    j["attribute"]["endurance"]    = player.attribute.endurance;
+    j["attribute"]["intelligence"] = player.attribute.intelligence;
+    j["attribute"]["dexterity"]    = player.attribute.dexterity;
 
     j["equipment"] = json::array();
     for(const auto& item : player.equipment) {
-        j["equipment"].push_back(item->id);
+        if(item != nullptr) {
+            j["equipment"].push_back(item->id);
+        } else {
+            j["equipment"].push_back(nullptr);
+        }
     }
     j["inventory"] = json::array();
     for(const auto& item : player.inventory) {
-        j["inventory"].push_back(item->id);
+        j["inventory"].push_back(item.id);
     }
 
     std::ofstream output(FILE_NAME);
     if(output.is_open()) output << j.dump(4);
+    std::cout << "Game saved successfully!\n";
 }
 
 //  loading and parsing save files are next here.
