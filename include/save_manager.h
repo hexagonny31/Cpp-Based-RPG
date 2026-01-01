@@ -18,5 +18,6 @@ struct LoadFailed : std::runtime_error
 
 Player newCharacterSave();
 void saveToFile(const Player &player);
+Player loadToFile();
 
 #endif

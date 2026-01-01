@@ -27,7 +27,7 @@ int main() {
                     saveToFile(player);
                     break;
                 case 'w': // select save.
-                    cout << "Testing";
+                    player = loadToFile();
                     break;
                 case 'e':
                     return 0;
@@ -49,7 +49,12 @@ int main() {
     }
 
     cout << player.getName() << "'s save file selected.\n";
-    hUtils::sleep(5000);
+    cout << player.getEquipmentName(Slot::MainHand) << '\n';
+
+
+
+    
+    hUtils::sleep(10000);
     //  parse save files.
 
     return 0;
