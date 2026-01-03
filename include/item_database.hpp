@@ -9,7 +9,7 @@
 #include <optional>
 #include <unordered_map>
 
-using json = nlohmann::json;
+using nj = nlohmann::json;
 
 //  descriptions that defines an equipment 
 struct Properties {
@@ -54,16 +54,16 @@ public:
         std::ifstream file(FILE_NAME);
         if(!file.is_open()) return false;
 
-        json j;
+        nj json;
         try {
-            file >> j;
-        } catch(const json::parse_error&) {
+            file >> json;
+        } catch(const nj::parse_error&) {
             return false;
         }
-        if(!j.is_array()) return false;
+        if(!json.is_array()) return false;
 
         itemDatabase.clear();
-        for(const auto& entry : j) {
+        for(const auto& entry : json) {
             if(!entry.contains("name") || !entry.contains("id") || !entry.contains("equippable")) continue;
 
             Item item;

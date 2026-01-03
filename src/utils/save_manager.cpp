@@ -13,35 +13,19 @@ using namespace std::string_literals;
 namespace fs = std::filesystem;
 
 Player newCharacterSave() {
-    //  deciding for the character name.
     hUtils::text.clearAll();
-    std::cout << "Creating new save...\n";
-    std::string init_name;
-    while(true) {
-        init_name = "";
-        std::cout << "Enter your character name (2 - 64 characters)\n> ";
-        std::getline(std::cin, init_name);
-        if(init_name == "exit" || init_name == "e") throw UserCancelled("Load cancelled by user.");
-
-        if(init_name.length() > 64) {
-            hUtils::text.reject("Name can't be over 64 characters!", 2);
-            continue;
-        } else if(init_name.length() < 2) {
-            hUtils::text.reject("Name can't be under 2 characters!", 2);
-            continue;
-        } else {
-            std::cout << '\n';
-            break;
-        }
-    }
+    std::cout << "Creating new save...\n\n";
+    //  deciding for the character name.
+    std::string init_name = strIn("Enter your character name (2 - 64 characters)\n", 2, 64);
+    if(init_name == "e") throw UserCancelled("Load cancelled by user.");
     //  creating action.
-    const std::string PRESET_JSON_NAME = "json/class_preset.json";
+    const std::string PRESET_JSON_NAME = "json/class_presets.json";
     std::optional<std::vector<ClassPreset>> init = parsePresets(PRESET_JSON_NAME);
-    if(!init) {
-        throw LoadFailed("Failed to load '"s + PRESET_JSON_NAME + "'"s);
-    }
+
+    if(!init) throw LoadFailed("Failed to load '" + PRESET_JSON_NAME + "'"s);
+
     const std::vector<ClassPreset> class_presets = *init;
-    
+    //  construction a lookup table.
     std::unordered_map<std::string, int> lookup;
     std::vector<std::string> class_names;
     for(int i = 0; i < class_presets.size(); i++) {
@@ -76,6 +60,7 @@ Player newCharacterSave() {
         class_preset = class_presets[cartesian->second];
         break;
     }
+    std::cout << '\n';
     //  setting the preset to the new player object.
     new_player.setName(init_name);
     new_player.setAllocation(class_preset.starting_pts);
@@ -98,42 +83,61 @@ Player newCharacterSave() {
 void saveToFile(const Player &player) {
     std::string name = player.getName();
     hUtils::text.trim(name);
-    const std::string& FILE_NAME = "saves/" + name + ".save";
-    json j;
+    std::string FILE_NAME = "saves/" + name + ".save";
 
-    j["name"] = player.getName();
-    j["allocation_pts"] = player.getAllocationPts();
-    j["current_health"] = player.getCurrentHealth();
-    j["current_mana"]   = player.getCurrentMana();
+    while(fs::exists(FILE_NAME)) {
+        char input;
+        std::cout << "'" << FILE_NAME << "' already exists!\n" <<
+                     "Overwrite save [Q]\n" <<
+                     "Enter new save name [W]\n" <<
+                     "Cancel [E]\n";
+        input = charIn();
+        std::cout << '\n';
 
-    j["attribute"]["vigor"]        = player.attribute.vigor;
-    j["attribute"]["strength"]     = player.attribute.strength;
-    j["attribute"]["endurance"]    = player.attribute.endurance;
-    j["attribute"]["intelligence"] = player.attribute.intelligence;
-    j["attribute"]["dexterity"]    = player.attribute.dexterity;
-
-    j["equipment"] = json::array();
-    for(const auto &item : player.equipment) {
-        if(item != nullptr) {
-            j["equipment"].push_back(item->id);
-        } else {
-            j["equipment"].push_back(nullptr);
+        if(input == 'q') {
+            if(!proceed()) continue;
+            break;
+        }
+        if(input == 'e') throw UserCancelled("Load cancelled by user.");
+        if(input == 'w') {
+            std::string new_name = strIn("Enter a new name\n");
+            hUtils::text.trim(new_name);
+            FILE_NAME = "saves/" + new_name + ".save";
         }
     }
-    j["inventory"] = json::array();
-    for(const auto &item : player.inventory) j["inventory"].push_back(item.id);
+
+    nj json;
+
+    json["name"] = player.getName();
+    json["allocation_pts"] = player.getAllocationPts();
+    json["current_health"] = player.getCurrentHealth();
+    json["current_mana"]   = player.getCurrentMana();
+
+    json["attribute"]["vigor"]        = player.attribute.vigor;
+    json["attribute"]["strength"]     = player.attribute.strength;
+    json["attribute"]["endurance"]    = player.attribute.endurance;
+    json["attribute"]["intelligence"] = player.attribute.intelligence;
+    json["attribute"]["dexterity"]    = player.attribute.dexterity;
+
+    json["equipment"] = nj::array();
+    for(const auto &item : player.equipment) {
+        if(item != nullptr) json["equipment"].push_back(item->id);
+        else json["equipment"].push_back(nullptr);
+    }
+    json["inventory"] = nj::array();
+    for(const auto &item : player.inventory) json["inventory"].push_back(item.id);
 
     std::ofstream output(FILE_NAME);
-    if(output.is_open()) output << j.dump(4);
-    std::cout << "Game saved successfully!\n";
+    if(!output.is_open()) throw LoadFailed("Failed to open output save file '"s + FILE_NAME + "'"s);
+    output << json.dump(4);
+    std::cout << "Game saved successfully!\n\n";
 }
 
 //  loading and parsing save files are next here.
 Player loadToFile() {
     //  deciding what save to load.
     hUtils::text.clearAll();
-    std::cout << "Loading save file...\n";
-    std::string load_name;
+    std::cout << "Loading save file...\n\n";
     try {
         std::cout << "Pick a file to load:\n";
         for(const auto &entry : fs::directory_iterator("saves/")) {
@@ -144,43 +148,30 @@ Player loadToFile() {
     } catch(const fs::filesystem_error& e) {
         throw LoadFailed("Failed to access 'saves/' directory: "s + e.what());
     }
-    while(true) {
-        load_name = "";
-        std::cout << "> ";  // must be case sensitive when inputing names. (less hassle)
-        std::getline(std::cin, load_name);
-        if(load_name == "exit" || load_name == "e") throw UserCancelled("Load cancelled by user.");
+    std::string load_name = strIn();
+    if(load_name == "exit" || load_name == "e") throw UserCancelled("Load cancelled by user.");
 
-        if(load_name.length() > 64) {
-            hUtils::text.reject("Name can't be over 64 characters!", 2);
-            continue;
-        } else if(load_name.length() < 2) {
-            hUtils::text.reject("Name can't be under 2 characters!", 2);
-            continue;
-        } else {
-            std::cout << '\n';
-            break;
-        }
-    }
     const std::string& FILE_NAME = "saves/" + load_name + ".save";
     std::ifstream file(FILE_NAME);
     if(!file.is_open()) throw LoadFailed("Failed to open save file '"s + FILE_NAME + "'"s);
 
-    json j;
+    nj json;
     try {
-        file >> j;
-    } catch(const json::parse_error&) {
+        file >> json;
+    } catch(const nj::parse_error&) {
         throw LoadFailed("Failed to parse save file '"s + FILE_NAME + "'"s);
     }
     Player loaded_player;
-    if(!j.contains("name") || !j["name"].is_string()) throw LoadFailed("Save file '"s + FILE_NAME + "' is missing 'name' field."s);
+    if(!json.contains("name") || !json["name"].is_string())
+        throw LoadFailed("Save file '"s + FILE_NAME + "' is missing 'name' field."s);
 
-    loaded_player.setName(j["name"]);
-    loaded_player.setAllocation(j.value("allocation_pts", 0));
-    loaded_player.setCurrentHealth(j.value("current_health", 100.0));
-    loaded_player.setCurrentMana(j.value("current_mana", 100.0));
+    loaded_player.setName(json["name"]);
+    loaded_player.setAllocation(json.value("allocation_pts", 0));
+    loaded_player.setCurrentHealth(json.value("current_health", 100.0));
+    loaded_player.setCurrentMana(json.value("current_mana", 100.0));
 
-    if(j.contains("attribute") && j["attribute"].is_object()) {
-        auto attr = j["attribute"];
+    if(json.contains("attribute") && json["attribute"].is_object()) {
+        auto attr = json["attribute"];
         loaded_player.attribute.vigor        = attr.value("vigor", 0);
         loaded_player.attribute.strength     = attr.value("strength", 0);
         loaded_player.attribute.endurance    = attr.value("endurance", 0);
@@ -188,18 +179,18 @@ Player loadToFile() {
         loaded_player.attribute.dexterity    = attr.value("dexterity", 0);
     }
     std::unordered_map<std::string, int> lookup;
-    if(j.contains("inventory") && j["inventory"].is_array()) {
+    if(json.contains("inventory") && json["inventory"].is_array()) {
         int i = 0;
-        for(const auto &item_name : j["inventory"]) {
+        for(const auto &item_name : json["inventory"]) {
             if(!item_name.is_string()) continue;
             loaded_player.addToInventory(item_name);
             lookup[item_name.get<std::string>()] = i;
             i++;
         }
     }
-    if(j.contains("equipment") && j["equipment"].is_array()) {
+    if(json.contains("equipment") && json["equipment"].is_array()) {
         size_t i = 0;
-        for(const auto &item_name_json : j["equipment"]) {
+        for(const auto &item_name_json : json["equipment"]) {
             if(!item_name_json.is_string()) continue;
             if(i >= static_cast<size_t>(Slot::COUNT)) break;
 
@@ -212,6 +203,5 @@ Player loadToFile() {
             i++;
         }
     }
-
     return loaded_player;
 }

@@ -7,17 +7,76 @@
 using std::cout;
 using std::string;
 
+using namespace std::string_literals;
+
 std::string colorLabel(std::string label, const int color, bool use356) {
     return hUtils::text.fgColor(color, use356) + label + hUtils::text.defaultText();
 }
 
-char charIn() {
+bool proceed() {
+    char choice;
+    string input;
+    do {
+        cout << "This action cannot be undone.\n"
+             << "Do you want to continue? (y/n): ";
+        std::getline(std::cin, input);
+        
+        if(!input.empty()) choice = std::tolower(input[0]);
+        else choice = '\0';
+
+        if(choice != 'y' && choice != 'n') {
+            hUtils::text.reject("\n\nInvalid choice! Please try again!", 3);
+        }
+    } while(choice != 'y' && choice != 'n');
+    hUtils::text.clearAbove(2);
+    return choice == 'y';
+}
+
+char charIn(std::string prompt) {
     char input;
-    cout << "> ";
+    cout << prompt << "\n> ";
     std::cin >> input;
     std::cin.ignore(256, '\n');
     input = tolower(input);
     return input;
+}
+
+std::string strIn(std::string prompt, int min, int max) {
+    std::string input = "";
+    while(true) {
+        input = "";
+        cout << prompt << "> ";
+        std::getline(std::cin, input);
+        if(input == "exit" || input == "e") return input;
+        if(input.length() < min) {
+            hUtils::text.reject("Name can't be under " + std::to_string(min) + " characters!"s, 2);
+            continue;
+        } else if(input.length() > max) {
+            hUtils::text.reject("Name can't be over " + std::to_string(max) + " characters!"s, 2);
+            continue;
+        } else {
+            cout << '\n';
+            return input;
+        }
+    }
+}
+
+int intIn(std::string prompt, int min, int max) {
+    int input;
+    while(true) {
+        cout << prompt << "\n> ";
+        std::cin >> input;
+        if(input < min) {
+            hUtils::text.reject("Input is too low!", 2);
+            continue;
+        } else if(input > max) {
+            hUtils::text.reject("Input is too high!", 2);
+            continue;
+        } else {
+            cout << '\n';
+            return input;
+        }
+    }
 }
 
 namespace hUtils {

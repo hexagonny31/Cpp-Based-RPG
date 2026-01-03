@@ -7,6 +7,8 @@
 using std::cout;
 using std::cin;
 
+std::unordered_map<std::string, Item> ItemDatabase::itemDatabase;
+
 int main() {
     ItemDatabase::instance().load();
     std::string FILE_NAME;
@@ -15,11 +17,11 @@ int main() {
     char input;
     Player player;
     while(true) {
+        hUtils::text.clearAll();
         cout << "Create new save [Q]\n" <<
                 "Select existing save [W]\n" <<
                 "Exit program [E]\n";
         input = charIn();
-   
         try {
             switch(input) {
                 case 'q': //  new save.
@@ -51,8 +53,7 @@ int main() {
     cout << player.getName() << "'s save file selected.\n";
     cout << player.getEquipmentName(Slot::MainHand) << '\n';
 
-
-
+    int inputing = intIn("", 1, 5);
     
     hUtils::sleep(10000);
     //  parse save files.

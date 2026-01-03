@@ -22,7 +22,10 @@ constexpr int SCREEN_WIDTH  = 75;
 constexpr int SCREEN_HEIGHT = 30;
 
 std::string colorLabel(std::string label, const int color, bool use356 = true);
-char charIn();
+bool proceed();
+char charIn(std::string prompt = "");
+std::string strIn(std::string prompt = "", int min = 2, int max = 64);
+int intIn(std::string prompt = "", int min = 0, int max = 10);
 
 namespace hUtils {
 

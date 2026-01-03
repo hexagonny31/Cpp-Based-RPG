@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace fs = std::filesystem;
-using json = nlohmann::json;
+using nj = nlohmann::json;
 
 std::optional<std::vector<ClassPreset>> parsePresets(const std::string &FILE_NAME) {
     std::ifstream file(FILE_NAME);
@@ -18,17 +18,17 @@ std::optional<std::vector<ClassPreset>> parsePresets(const std::string &FILE_NAM
         return std::nullopt;
     }
 
-    json j;
+    nj json;
     try {
-        file >> j;
-    } catch(const json::parse_error&) {
+        file >> json;
+    } catch(const nj::parse_error&) {
         std::cout << "Failed to parse " << FILE_NAME << '\n';
         hUtils::sleep(2000);
         return std::nullopt;  // if JSON file is not valid.
     }
-    if(!j.is_array()) return std::nullopt;
+    if(!json.is_array()) return std::nullopt;
     std::vector<ClassPreset> result;
-    for(auto& entry : j) {
+    for(auto& entry : json) {
         ClassPreset preset;
         if(!entry.contains("class_name")) continue;
         if(!entry.contains("main_hand")) continue;
