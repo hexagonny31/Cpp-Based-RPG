@@ -1,11 +1,11 @@
 #include "hutils.h"
 #include "item_database.hpp"
+#include "menus.hpp"
 #include "save_manager.h"
 
 #include <iostream>
 
 using std::cout;
-using std::cin;
 
 std::unordered_map<std::string, Item> ItemDatabase::itemDatabase;
 
@@ -13,7 +13,7 @@ int main() {
     ItemDatabase::instance().load();
     std::string FILE_NAME;
 
-    //  create/select save.
+    //  create/select progress.
     char input;
     Player player;
     while(true) {
@@ -24,26 +24,26 @@ int main() {
         input = charIn();
         try {
             switch(input) {
-                case 'q': //  new save.
-                    player = newCharacterSave();
-                    saveToFile(player);
-                    break;
-                case 'w': // select save.
-                    player = loadToFile();
-                    break;
-                case 'e':
-                    return 0;
-                default:
-                    hUtils::text.reject("Invalid option!", 4);
-                    continue;
+            case 'q': //  new save.
+                player = newCharacterSave();
+                saveToFile(player);
+                break;
+            case 'w': // select save.
+                player = loadToFile();
+                break;
+            case 'e':
+                return 0;
+            default:
+                hUtils::text.reject("Invalid option!", 4);
+                continue;
             }
-        } catch(const LoadFailed& e) {
+        } catch(const LoadFailed &e) {
             hUtils::text.reject(e.what(), 4);
             continue;
-        } catch(const UserCancelled& e) {
+        } catch(const UserCancelled &e) {
             hUtils::text.reject(e.what(), 4);
             continue;
-        } catch(const std::exception& e) {
+        } catch(const std::exception &e) {
             hUtils::text.reject(e.what(), 4);
             continue;
         }
@@ -53,6 +53,44 @@ int main() {
     cout << player.getName() << "'s save file selected.\n";
     cout << player.getEquipmentName(Slot::MainHand) << '\n';
 
+    //  action menu.
+    input = '\0';
+    while(true) {
+        hUtils::text.clearAll();
+        std::cout << "Action Menu:\n";
+        hUtils::table.setElements(
+            " [A] Character Stats", " [S] Inventory",
+            " [Q] Gather Items",    " [W] Adventure",
+            " [E] Exit Game"
+        );
+        hUtils::table.toColumn("left", 21, 2);
+        std::cout << '\n';
+        input = charIn();
+
+        try {
+            switch(input) {
+            case 'a': 
+                statistics(player);
+                break;
+            case 's': 
+                inventory(player);
+                break;
+            case 'w': // adventuring
+                break;
+            case 'q': // gathering
+                break;
+            case 'e':
+                return 0;
+            default:
+                hUtils::text.reject("Invalid option!", 5);
+                continue;
+            }
+        } catch(const std::exception &e) {
+            hUtils::text.reject(e.what(), 5);
+            continue;
+        }
+        break;
+    }
     int inputing = intIn("", 1, 5);
     
     hUtils::sleep(10000);

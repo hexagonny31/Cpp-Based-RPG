@@ -13,12 +13,12 @@ std::string colorLabel(std::string label, const int color, bool use356) {
     return hUtils::text.fgColor(color, use356) + label + hUtils::text.defaultText();
 }
 
-bool proceed() {
+bool proceed(std::string prompt) {
     char choice;
     string input;
     do {
         cout << "This action cannot be undone.\n"
-             << "Do you want to continue? (y/n): ";
+             << prompt << " (y/n): ";
         std::getline(std::cin, input);
         
         if(!input.empty()) choice = std::tolower(input[0]);
@@ -34,7 +34,7 @@ bool proceed() {
 
 char charIn(std::string prompt) {
     char input;
-    cout << prompt << "\n> ";
+    cout << prompt << "> ";
     std::cin >> input;
     std::cin.ignore(256, '\n');
     input = tolower(input);

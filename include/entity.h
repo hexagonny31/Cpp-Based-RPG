@@ -26,10 +26,22 @@ struct Player
 
     std::string getName         ()          const { return name; }
     int         getAllocationPts()          const { return allocation_pts; }
+    Attributes  getAttributes   ()          const { return attribute; }
+    int         getVigor        ()          const { return attribute.vigor; }
+    int         getStrength     ()          const { return attribute.strength; }
+    int         getEndurance    ()          const { return attribute.endurance; }
+    int         getIntelligence ()          const { return attribute.intelligence; }
+    int         getDexterity    ()          const { return attribute.dexterity; }
     Item*       getEquipment    (Slot slot) const { return equipment[static_cast<size_t>(slot)]; }
     std::string getEquipmentName(Slot slot) const {
-        Item* item = getEquipment(slot);
+        Item *item = getEquipment(slot);
         return item ? item->name : "Empty";
+    }
+    Item        getItem         (int slot)  const { return inventory[slot]; }
+    std::string getItemName     (int slot)  const {
+        if (slot < 0 || static_cast<size_t>(slot) >= inventory.size())
+            return "Empty";
+        return inventory[slot].name;
     }
 
     void setName       (const std::string& newName) { name = newName; }

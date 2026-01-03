@@ -98,7 +98,10 @@ void saveToFile(const Player &player) {
             if(!proceed()) continue;
             break;
         }
-        if(input == 'e') throw UserCancelled("Load cancelled by user.");
+        if(input == 'e') {
+            hUtils::text.clearAbove(6);
+            throw UserCancelled("Load cancelled by user.");
+        }
         if(input == 'w') {
             std::string new_name = strIn("Enter a new name\n");
             hUtils::text.trim(new_name);
@@ -108,7 +111,7 @@ void saveToFile(const Player &player) {
 
     nj json;
 
-    json["name"] = player.getName();
+    json["name"]           = player.getName();
     json["allocation_pts"] = player.getAllocationPts();
     json["current_health"] = player.getCurrentHealth();
     json["current_mana"]   = player.getCurrentMana();

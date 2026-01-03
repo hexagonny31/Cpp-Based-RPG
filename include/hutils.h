@@ -22,7 +22,7 @@ constexpr int SCREEN_WIDTH  = 75;
 constexpr int SCREEN_HEIGHT = 30;
 
 std::string colorLabel(std::string label, const int color, bool use356 = true);
-bool proceed();
+bool proceed(std::string prompt = "Do you want to continue?");
 char charIn(std::string prompt = "");
 std::string strIn(std::string prompt = "", int min = 2, int max = 64);
 int intIn(std::string prompt = "", int min = 0, int max = 10);
@@ -121,9 +121,23 @@ namespace hUtils {
                                    int givenWidth = 0,
                                    int numberOfColumns = 2);
     };
+
+    struct Bar {
+    private:
+        void printBar(double value,
+                      double maxPoints,
+                      int filledColor = 255,
+                      int emptyColor  = 237);
+    public:
+        HUTIL_API void setBar  (double value,
+                                double maxPoints,
+                                int filledColor = 252,
+                                int emptyColor  = 237);
+    };
     
     extern Text   text;
-    extern Table  table;   
+    extern Table  table;  
+    extern Bar    bar;
 }
 
 #endif
