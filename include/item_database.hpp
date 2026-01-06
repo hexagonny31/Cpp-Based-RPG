@@ -28,7 +28,8 @@ struct Item {
     Attributes attribute;
 
     // stat modifiers
-    double increase_HP  = 0.0;  // adds health points
+    double increase_HP  = 0.0;  // adds health points by a percentage
+    double increase_DMG = 0.0;  // adds flat damage by a percentage
     double base_damage  = 0.0;  // flat damage of a weapon
     double health_bonus = 0.0;  // extra health points
     double damage_bonus = 0.0;  // extra weapon damage
@@ -82,6 +83,7 @@ public:
             item.attribute = a;
             
             item.increase_HP  = entry.value("increase_HP", 0);
+            item.increase_DMG = entry.value("increase_DMG", 0);
             item.base_damage  = entry.value("base_damage", 0);
             item.health_bonus = entry.value("health_bonus", 0);
             item.damage_bonus = entry.value("damage_bonus", 0);

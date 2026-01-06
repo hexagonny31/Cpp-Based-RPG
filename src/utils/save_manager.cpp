@@ -44,7 +44,7 @@ Player newCharacterSave() {
         std::string input = "";
         std::cout << "Choose a preset for your character: \n";
         hUtils::table.setElements(class_names);
-        hUtils::table.toColumn("left", 16, 3);
+        hUtils::table.toColumn("left", {}, 3);
         std::cout << "> ";
         std::getline(std::cin, input);
         hUtils::text.trim(input);
@@ -88,9 +88,9 @@ void saveToFile(const Player &player) {
     while(fs::exists(FILE_NAME)) {
         char input;
         std::cout << "'" << FILE_NAME << "' already exists!\n" <<
-                     "Overwrite save [Q]\n" <<
-                     "Enter new save name [W]\n" <<
-                     "Cancel [E]\n";
+                     "[Q] Overwrite save\n" <<
+                     "[W] Enter new save name\n" <<
+                     "[E] Cancel\n";
         input = charIn();
         std::cout << '\n';
 

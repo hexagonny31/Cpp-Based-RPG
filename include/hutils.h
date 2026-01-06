@@ -76,7 +76,7 @@ namespace hUtils {
             return std::regex_replace(text, std::regex("\033\\[[0-9;]*m"), "");
         }
 
-        HUTIL_API void clearAll          ();                     //  Clears every output in the terminal.
+        HUTIL_API void clearAll          (int delay = 0);                     //  Clears every output in the terminal.
         HUTIL_API void clearBelow        (int line);             //  Clears an assigned line below it.
         HUTIL_API void clearAbove        (int line);             //  Clears an assigned line above it.
     };

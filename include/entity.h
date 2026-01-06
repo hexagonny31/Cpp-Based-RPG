@@ -46,6 +46,7 @@ struct Player
 
     void setName       (const std::string& newName) { name = newName; }
     void setAllocation (int newAllocation)          { allocation_pts = newAllocation; }
+    void setAttributes ();
     bool addToInventory(const std::string& id) {
         auto init = ItemDatabase::instance().find(id);
         if(!init) return false;

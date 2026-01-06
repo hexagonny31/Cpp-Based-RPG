@@ -66,6 +66,7 @@ int intIn(std::string prompt, int min, int max) {
     while(true) {
         cout << prompt << "\n> ";
         std::cin >> input;
+        std::cin.ignore(256, '\n');
         if(input < min) {
             hUtils::text.reject("Input is too low!", 2);
             continue;
@@ -197,8 +198,9 @@ namespace hUtils {
         return "\033[0m";
     }
 
-    void Text::clearAll()
+    void Text::clearAll(int delay)
     {
+        sleep(delay);
     #ifdef _WIN32
         if(std::getenv("TERM")){ 
             // Use ANSI escape codes if the terminal supports it

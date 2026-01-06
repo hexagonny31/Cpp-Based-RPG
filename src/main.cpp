@@ -18,9 +18,9 @@ int main() {
     Player player;
     while(true) {
         hUtils::text.clearAll();
-        cout << "Create new save [Q]\n" <<
-                "Select existing save [W]\n" <<
-                "Exit program [E]\n";
+        cout << "[Q] Create new save\n" <<
+                "[W] Select existing save\n" <<
+                "[E] Exit program\n";
         input = charIn();
         try {
             switch(input) {
@@ -52,10 +52,12 @@ int main() {
 
     cout << player.getName() << "'s save file selected.\n";
     cout << player.getEquipmentName(Slot::MainHand) << '\n';
+    hUtils::sleep(2500);
 
     //  action menu.
-    input = '\0';
+    
     while(true) {
+        input = '\0';
         hUtils::text.clearAll();
         std::cout << "Action Menu:\n";
         hUtils::table.setElements(
@@ -63,10 +65,8 @@ int main() {
             " [Q] Gather Items",    " [W] Adventure",
             " [E] Exit Game"
         );
-        hUtils::table.toColumn("left", 21, 2);
-        std::cout << '\n';
-        input = charIn();
-
+        hUtils::table.toColumn("left", 22, 2);
+        input = charIn("\n");
         try {
             switch(input) {
             case 'a': 
@@ -89,7 +89,6 @@ int main() {
             hUtils::text.reject(e.what(), 5);
             continue;
         }
-        break;
     }
     int inputing = intIn("", 1, 5);
     
