@@ -84,11 +84,6 @@ namespace hUtils {
     struct Table {
     private:
         std::vector<std::string> elements;
-    
-        std::string stripAnsi(const std::string& text) const
-        {
-            return std::regex_replace(text, std::regex("\033\\[[0-9;]*m"), "");
-        }
 
         template <typename T>
         std::string toString (const T& value)
@@ -97,10 +92,7 @@ namespace hUtils {
             oss << value;
             return oss.str();
         }
-        std::string toString(const std::string& value) {
-            return value;
-        }
-        int calculateMaxWidth() const;
+        int findMaxWidth() const;
     
     public:
         template <typename... Args>
