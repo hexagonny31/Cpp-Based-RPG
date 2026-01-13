@@ -70,11 +70,9 @@ int main() {
         try {
             switch(input) {
             case 'a': 
-                statistics(player);
-                break;
+                statistics(player); break;
             case 's': 
-                inventory(player);
-                break;
+                inventory(player); break;
             case 'w': // adventuring
                 break;
             case 'q': // gathering
@@ -85,6 +83,12 @@ int main() {
                 hUtils::text.reject("Invalid option!", 5);
                 continue;
             }
+        } catch(const LoadFailed &e) {
+            hUtils::text.reject(e.what(), 5);
+            continue;
+        } catch(const UserCancelled &e) {
+            hUtils::text.reject(e.what(), 5);
+            continue;
         } catch(const std::exception &e) {
             hUtils::text.reject(e.what(), 5);
             continue;

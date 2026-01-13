@@ -24,9 +24,10 @@ struct Player
 
     Player() : equipment(static_cast<size_t>(Slot::COUNT), nullptr) {}
 
-    std::string getName         ()          const { return name; }
-    int         getAllocationPts()          const { return allocation_pts; }
-    Attributes  getAttributes   ()          const { return attribute; }
+    std::string        getName         ()   const { return name; }
+    int                getAllocationPts()   const { return allocation_pts; }
+    Attributes         getAttributes   ()   const { return attribute; }
+    std::vector<Item*> getEquipment    ()   const { return equipment; }
     int         getVigor        ()          const { return attribute.vigor; }
     int         getStrength     ()          const { return attribute.strength; }
     int         getEndurance    ()          const { return attribute.endurance; }

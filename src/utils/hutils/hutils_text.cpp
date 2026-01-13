@@ -64,7 +64,7 @@ std::string strIn(std::string prompt, int min, int max) {
 int intIn(std::string prompt, int min, int max) {
     int input;
     while(true) {
-        cout << prompt << "\n> ";
+        cout << prompt << "> ";
         std::cin >> input;
         std::cin.ignore(256, '\n');
         if(input < min) {

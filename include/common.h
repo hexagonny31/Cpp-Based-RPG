@@ -9,7 +9,7 @@ struct Attributes  // factors that scales the entity's stats
     int intelligence = 0; // increases magical damage & mana points
     int dexterity    = 0; // increases dodge chance & critical chance
 };
-
+//  for equipment vector
 enum class Slot {
     MainHand,
     OffHand,
@@ -17,6 +17,14 @@ enum class Slot {
     Chestplate,
     Boots,
     COUNT
+};
+//  for item properties.
+enum class EquipType {
+    None,
+    Weapon,
+    Helmet,
+    Chestplate,
+    Boots,
 };
 
 #endif

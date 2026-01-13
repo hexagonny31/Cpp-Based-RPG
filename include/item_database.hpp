@@ -22,7 +22,6 @@ struct Properties {
 struct Item {
     std::string name;
     std::string id;
-    std::string equip_type = "";
 
     // attribute modifiers
     Attributes attribute;
@@ -36,10 +35,19 @@ struct Item {
     double resist_bonus = 0.0;  // extra armor/resist
     double dodge_bonus  = 0.0;  // extra dodge
 
-    bool equipped = false;
-    bool equippable;
+    bool equipped   = false;
+    bool equippable = false;
+    EquipType equip_type = EquipType::None;
     // other stuff maybe in the future like rarity bonuses and shit like that.
 };
+
+EquipType findSlot(const std::string &s) {
+    if(s == "weapon")     return EquipType::Weapon;
+    if(s == "helmet")     return EquipType::Helmet;
+    if(s == "chestplate") return EquipType::Chestplate;
+    if(s == "boots")      return EquipType::Boots;
+    return EquipType::None;
+}
 
 struct ItemDatabase {
 private:
@@ -71,6 +79,8 @@ public:
             item.id         = entry["id"].get<std::string>();
             item.name       = entry["name"].get<std::string>();
             item.equippable = entry["equippable"].get<bool>();
+            std::string t   = entry.value("equip_type", "");
+            item.equip_type = findSlot(t);
             item.base_damage = entry.value("base_damage", 0.0);
 
             Attributes a;

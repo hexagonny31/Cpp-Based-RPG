@@ -188,22 +188,22 @@ Player loadToFile() {
             if(!item_name.is_string()) continue;
             loaded_player.addToInventory(item_name);
             lookup[item_name.get<std::string>()] = i;
-            i++;
+            ++i;
         }
     }
     if(json.contains("equipment") && json["equipment"].is_array()) {
         size_t i = 0;
         for(const auto &item_name_json : json["equipment"]) {
-            if(!item_name_json.is_string()) continue;
             if(i >= static_cast<size_t>(Slot::COUNT)) break;
+            if(item_name_json.is_string()) {
+                const std::string item_name = item_name_json.get<std::string>();
+                std::unordered_map<std::string, int>::iterator cartesian = lookup.find(item_name);
+                if(cartesian == lookup.end()) continue;
+                Item *item = &loaded_player.inventory[cartesian->second];
 
-            const std::string item_name = item_name_json.get<std::string>();
-            std::unordered_map<std::string, int>::iterator cartesian = lookup.find(item_name);
-            if(cartesian == lookup.end()) continue;
-            Item *item = &loaded_player.inventory[cartesian->second];
-
-            loaded_player.equipItem(item, static_cast<Slot>(i));
-            i++;
+                loaded_player.equipItem(item, static_cast<Slot>(i));
+            }
+            ++i;
         }
     }
     return loaded_player;
