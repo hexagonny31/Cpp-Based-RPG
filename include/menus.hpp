@@ -64,7 +64,7 @@ void equip(Player &player) {
         case EquipType::Boots:      slot = Slot::Boots;      break;
         }
         player.equipItem(&player.inventory[selected.index], slot);
-        std::cout << "\nEquipped " << item_to_equip.name << ".\n";
+        std::cout << "\nEquipped " << player.inventory[selected.index].name << ".\n";
         hUtils::sleep(2500);
         hUtils::text.clearAll();
         break;
