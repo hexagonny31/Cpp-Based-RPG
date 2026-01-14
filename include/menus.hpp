@@ -14,7 +14,7 @@ void equip(Player &player) {
     std::vector<std::string> names;
     int i = 0;
     for(const Item item : player.inventory) {
-        if(item.equippable && item.equip_type != EquipType::None) {
+        if(item.equip_type != EquipType::None) {
             lookup[item.name] = i;
             names.push_back(item.name);
         }
@@ -43,7 +43,7 @@ void equip(Player &player) {
             continue;
         }
         selected = lookup.at(names[choice]);
-        if(selected >= player.inventory.size() || !player.inventory[selected].equippable) {
+        if(selected >= player.inventory.size() || player.inventory[selected].equip_type != EquipType::None) {
             hUtils::text.reject("Item is not available.", names.size() + 2);
             continue;
         }

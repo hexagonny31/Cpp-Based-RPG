@@ -24,7 +24,7 @@ struct Item {
     std::string id;
 
     // attribute modifiers
-    Attributes attribute;
+    Attributes attribute{};
 
     // stat modifiers
     double increase_HP  = 0.0;  // adds health points by a percentage
@@ -36,23 +36,21 @@ struct Item {
     double dodge_bonus  = 0.0;  // extra dodge
 
     bool equipped   = false;
-    bool equippable = false;
     EquipType equip_type = EquipType::None;
     // other stuff maybe in the future like rarity bonuses and shit like that.
 };
-
-EquipType findSlot(const std::string &s) {
-    if(s == "weapon")     return EquipType::Weapon;
-    if(s == "helmet")     return EquipType::Helmet;
-    if(s == "chestplate") return EquipType::Chestplate;
-    if(s == "boots")      return EquipType::Boots;
-    return EquipType::None;
-}
 
 struct ItemDatabase {
 private:
     ItemDatabase() = default;
     static std::unordered_map<std::string, Item> itemDatabase;
+    EquipType findSlot(const std::string &s) {
+        if(s == "weapon")     return EquipType::Weapon;
+        if(s == "helmet")     return EquipType::Helmet;
+        if(s == "chestplate") return EquipType::Chestplate;
+        if(s == "boots")      return EquipType::Boots;
+        return EquipType::None;
+    }
 public:
     static ItemDatabase& instance() {
         static ItemDatabase db;
@@ -72,33 +70,31 @@ public:
         if(!json.is_array()) return false;
 
         itemDatabase.clear();
-        for(const auto& entry : json) {
-            if(!entry.contains("name") || !entry.contains("id") || !entry.contains("equippable")) continue;
+        for(const auto& e : json) {
+            if(!e.contains("name") || !e.contains("id")) continue;
 
             Item item;
-            item.id         = entry["id"].get<std::string>();
-            item.name       = entry["name"].get<std::string>();
-            item.equippable = entry["equippable"].get<bool>();
-            std::string t   = entry.value("equip_type", "");
-            item.equip_type = findSlot(t);
-            item.base_damage = entry.value("base_damage", 0.0);
+            item.id          = e["id"].get<std::string>();
+            item.name        = e["name"].get<std::string>();
+            std::string t    = e.value("equip_type", "none");
+            item.equip_type  = findSlot(t);
 
-            Attributes a;
-            auto attr = entry["attribute"];
-            a.vigor        = attr.value("vigor", 0);
-            a.strength     = attr.value("strength", 0);
-            a.endurance    = attr.value("endurance", 0);
-            a.intelligence = attr.value("intelligence", 0);
-            a.dexterity    = attr.value("dexterity", 0);
-            item.attribute = a;
+            if(e.contains("attribute") && e["attribute"].is_object()) {
+                const auto& a = e["attribute"];
+                item.attribute.vigor        = a.value("vigor", 0);
+                item.attribute.strength     = a.value("strength", 0);
+                item.attribute.endurance    = a.value("endurance", 0);
+                item.attribute.intelligence = a.value("intelligence", 0);
+                item.attribute.dexterity    = a.value("dexterity", 0);
+            }
             
-            item.increase_HP  = entry.value("increase_HP", 0);
-            item.increase_DMG = entry.value("increase_DMG", 0);
-            item.base_damage  = entry.value("base_damage", 0);
-            item.health_bonus = entry.value("health_bonus", 0);
-            item.damage_bonus = entry.value("damage_bonus", 0);
-            item.resist_bonus = entry.value("resist_bonus", 0);
-            item.dodge_bonus  = entry.value("dodge_bonus", 0);
+            item.increase_HP  = e.value("increase_HP", 0);
+            item.increase_DMG = e.value("increase_DMG", 0);
+            item.base_damage  = e.value("base_damage", 0);
+            item.health_bonus = e.value("health_bonus", 0);
+            item.damage_bonus = e.value("damage_bonus", 0);
+            item.resist_bonus = e.value("resist_bonus", 0);
+            item.dodge_bonus  = e.value("dodge_bonus", 0);
 
             itemDatabase[item.id] = item;
         }

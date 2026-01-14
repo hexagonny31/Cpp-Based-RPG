@@ -55,7 +55,7 @@ struct Player
         return true;
     }
     void equipItem(Item* item, Slot slot) {
-        if(!item || !item->equippable) return;
+        if(!item || item->equip_type != EquipType::None) return;
         Item* current = getEquipment(slot);
         if(current) current->equipped = false;
         equipment[static_cast<size_t>(slot)] = item;
