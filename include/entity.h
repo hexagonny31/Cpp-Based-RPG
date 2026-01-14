@@ -35,7 +35,7 @@ struct Player
     int         getDexterity    ()          const { return attribute.dexterity; }
     Item*       getEquipment    (Slot slot) const { return equipment[static_cast<size_t>(slot)]; }
     std::string getEquipmentName(Slot slot) const {
-        Item *item = getEquipment(slot);
+        Item* item = getEquipment(slot);
         return item ? item->name : "Empty";
     }
     Item        getItem         (int slot)  const { return inventory[slot]; }

@@ -45,7 +45,7 @@ Player newCharacterSave() {
         std::cout << "Choose a preset for your character: \n";
         hUtils::table.setElements(class_names);
         hUtils::table.toColumn("left", {}, 3);
-        std::cout << "> ";
+        std::cout << "\n> ";
         std::getline(std::cin, input);
         hUtils::text.trim(input);
         input = hUtils::text.toLowerCase(input);
@@ -54,7 +54,7 @@ Player newCharacterSave() {
 
         std::unordered_map<std::string, int>::iterator cartesian = lookup.find(input);
         if(cartesian == lookup.end()) {
-            hUtils::text.reject("Unable to find class preset.", 4);
+            hUtils::text.reject("Unable to find class preset.", 5);
             continue;
         }
         class_preset = class_presets[cartesian->second];
@@ -91,7 +91,7 @@ void saveToFile(const Player &player) {
                      "[Q] Overwrite save\n" <<
                      "[W] Enter new save name\n" <<
                      "[E] Cancel\n";
-        input = charIn();
+        input = charIn("\n");
         std::cout << '\n';
 
         if(input == 'q') {
@@ -99,7 +99,7 @@ void saveToFile(const Player &player) {
             break;
         }
         if(input == 'e') {
-            hUtils::text.clearAbove(6);
+            hUtils::text.clearAbove(7);
             throw UserCancelled("Load cancelled by user.");
         }
         if(input == 'w') {
@@ -151,7 +151,7 @@ Player loadToFile() {
     } catch(const fs::filesystem_error& e) {
         throw LoadFailed("Failed to access 'saves/' directory: "s + e.what());
     }
-    std::string load_name = strIn();
+    std::string load_name = strIn("\n");
     if(load_name == "exit" || load_name == "e") throw UserCancelled("Load cancelled by user.");
 
     const std::string& FILE_NAME = "saves/" + load_name + ".save";

@@ -14,16 +14,15 @@ int main() {
     std::string FILE_NAME;
 
     //  create/select progress.
-    char input;
+    char choice;
     Player player;
+    cout << "[Q] Create new save\n" <<
+            "[W] Select existing save\n" <<
+            "[E] Exit program\n";
     while(true) {
-        hUtils::text.clearAll();
-        cout << "[Q] Create new save\n" <<
-                "[W] Select existing save\n" <<
-                "[E] Exit program\n";
-        input = charIn();
+        choice = charIn("\n");
         try {
-            switch(input) {
+            switch(choice) {
             case 'q': //  new save.
                 player = newCharacterSave();
                 saveToFile(player);
@@ -34,17 +33,17 @@ int main() {
             case 'e':
                 return 0;
             default:
-                hUtils::text.reject("Invalid option!", 4);
+                hUtils::text.reject("Invalid option!", 2);
                 continue;
             }
         } catch(const LoadFailed &e) {
-            hUtils::text.reject(e.what(), 4);
+            hUtils::text.reject(e.what(), 2);
             continue;
         } catch(const UserCancelled &e) {
-            hUtils::text.reject(e.what(), 4);
+            hUtils::text.reject(e.what(), 2);
             continue;
         } catch(const std::exception &e) {
-            hUtils::text.reject(e.what(), 4);
+            hUtils::text.reject(e.what(), 2);
             continue;
         }
         break;
@@ -57,7 +56,7 @@ int main() {
     //  action menu.
     
     while(true) {
-        input = '\0';
+        choice = '\0';
         hUtils::text.clearAll();
         std::cout << "Action Menu:\n";
         hUtils::table.setElements(
@@ -66,9 +65,9 @@ int main() {
             " [E] Exit Game"
         );
         hUtils::table.toColumn("left", 22, 2);
-        input = charIn("\n");
+        choice = charIn("\n");
         try {
-            switch(input) {
+            switch(choice) {
             case 'a': 
                 statistics(player); break;
             case 's': 

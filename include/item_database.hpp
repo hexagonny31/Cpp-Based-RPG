@@ -88,13 +88,13 @@ public:
                 item.attribute.dexterity    = a.value("dexterity", 0);
             }
             
-            item.increase_HP  = e.value("increase_HP", 0);
+            item.increase_HP  = e.value("increase_HP" , 0);
             item.increase_DMG = e.value("increase_DMG", 0);
-            item.base_damage  = e.value("base_damage", 0);
+            item.base_damage  = e.value("base_damage" , 0);
             item.health_bonus = e.value("health_bonus", 0);
             item.damage_bonus = e.value("damage_bonus", 0);
             item.resist_bonus = e.value("resist_bonus", 0);
-            item.dodge_bonus  = e.value("dodge_bonus", 0);
+            item.dodge_bonus  = e.value("dodge_bonus" , 0);
 
             itemDatabase[item.id] = item;
         }
