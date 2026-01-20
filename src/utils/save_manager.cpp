@@ -17,12 +17,12 @@ Player newCharacterSave() {
     std::cout << "Creating new save...\n\n";
     //  deciding for the character name.
     std::string init_name = strIn("Enter your character name (2 - 64 characters)\n", 2, 64);
-    if(init_name == "e") throw UserCancelled("Load cancelled by user.");
+    if(init_name == "e") throw std::runtime_error("Load cancelled by user.");
     //  creating action.
     const std::string PRESET_JSON_NAME = "json/class_presets.json";
     std::optional<std::vector<ClassPreset>> init = parsePresets(PRESET_JSON_NAME);
 
-    if(!init) throw LoadFailed("Failed to load '" + PRESET_JSON_NAME + "'"s);
+    if(!init) throw std::runtime_error("Failed to load '" + PRESET_JSON_NAME + "'"s);
 
     const std::vector<ClassPreset> class_presets = *init;
     //  construction a lookup table.
@@ -50,7 +50,7 @@ Player newCharacterSave() {
         hUtils::text.trim(input);
         input = hUtils::text.toLowerCase(input);
 
-        if(input == "exit" || input == "e") throw UserCancelled("Character creation cancelled by user.");
+        if(input == "exit" || input == "e") throw std::runtime_error("Character creation cancelled by user.");
 
         std::unordered_map<std::string, int>::iterator cartesian = lookup.find(input);
         if(cartesian == lookup.end()) {
@@ -100,7 +100,7 @@ void saveToFile(const Player &player) {
         }
         if(input == 'e') {
             hUtils::text.clearAbove(7);
-            throw UserCancelled("Load cancelled by user.");
+            throw std::runtime_error("Load cancelled by user.");
         }
         if(input == 'w') {
             std::string new_name = strIn("Enter a new name\n");
@@ -131,7 +131,7 @@ void saveToFile(const Player &player) {
     for(const auto &item : player.inventory) json["inventory"].push_back(item.id);
 
     std::ofstream output(FILE_NAME);
-    if(!output.is_open()) throw LoadFailed("Failed to open output save file '"s + FILE_NAME + "'"s);
+    if(!output.is_open()) throw std::runtime_error("Failed to open output save file '"s + FILE_NAME + "'"s);
     output << json.dump(4);
     std::cout << "Game saved successfully!\n\n";
 }
@@ -149,24 +149,24 @@ Player loadToFile() {
             }
         }
     } catch(const fs::filesystem_error& e) {
-        throw LoadFailed("Failed to access 'saves/' directory: "s + e.what());
+        throw std::runtime_error("Failed to access 'saves/' directory: "s + e.what());
     }
     std::string load_name = strIn("\n");
-    if(load_name == "exit" || load_name == "e") throw UserCancelled("Load cancelled by user.");
+    if(load_name == "exit" || load_name == "e") throw std::runtime_error("Load cancelled by user.");
 
     const std::string& FILE_NAME = "saves/" + load_name + ".save";
     std::ifstream file(FILE_NAME);
-    if(!file.is_open()) throw LoadFailed("Failed to open save file '"s + FILE_NAME + "'"s);
+    if(!file.is_open()) throw std::runtime_error("Failed to open save file '"s + FILE_NAME + "'"s);
 
     nj json;
     try {
         file >> json;
     } catch(const nj::parse_error&) {
-        throw LoadFailed("Failed to parse save file '"s + FILE_NAME + "'"s);
+        throw std::runtime_error("Failed to parse save file '"s + FILE_NAME + "'"s);
     }
     Player loaded_player;
     if(!json.contains("name") || !json["name"].is_string())
-        throw LoadFailed("Save file '"s + FILE_NAME + "' is missing 'name' field."s);
+        throw std::runtime_error("Save file '"s + FILE_NAME + "' is missing 'name' field."s);
 
     loaded_player.setName(json["name"]);
     loaded_player.setAllocation(json.value("allocation_pts", 0));

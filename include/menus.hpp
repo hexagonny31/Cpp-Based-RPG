@@ -54,6 +54,7 @@ bool equip(Player &player){
                 if(z == 'w') { slot = Slot::OffHand;  break; }
                 hUtils::text.reject("Invalid choice!", 4);
             }
+            break;
         }
         case EquipType::Helmet:     slot = Slot::Helmet;
         case EquipType::Chestplate: slot = Slot::Chestplate;
@@ -81,7 +82,7 @@ bool Player::setAttributes() {
         " [3] Endurance", " [6] Cancel"
     );
     hUtils::table.toColumn("left", 16, 2);
-    int choice = intIn("\n", 1, 6);
+    int choice = intIn("", 1, 6);
 
     if(choice == 6) return false;
 
@@ -115,7 +116,7 @@ void statistics(Player &player) {
                 << "  Off-Hand:   " << player.getEquipmentName(Slot::OffHand)    << '\n'
                 << "  Helmet:     " << player.getEquipmentName(Slot::Helmet)     << '\n'
                 << "  Chestplate: " << player.getEquipmentName(Slot::Chestplate) << '\n'
-                << "  Main Hand:  " << player.getEquipmentName(Slot::Boots)      << '\n';
+                << "  Boots:      " << player.getEquipmentName(Slot::Boots)      << '\n';
         hUtils::text.toLine();
         std::cout << "Attributes:\n"
                 << "  Vigor:        " << player.getVigor()        << '\n'
@@ -127,9 +128,15 @@ void statistics(Player &player) {
         choice = charIn("[A] Allocate | [S] Equip | [E] Exit\n\n");
 
         if(choice == 'e') break;
-        else if(choice == 'a') if(!player.setAttributes()) hUtils::text.reject("Failed to modify attributes.");
-        else if(choice == 's') if(!equip(player)) hUtils::text.reject("Failed to equip an item.");
-        else hUtils::text.reject("Invalid option!");
+        else if(choice == 'a') {
+            if(!player.setAttributes()) hUtils::text.reject("Failed to modify attributes.");
+        }
+        else if(choice == 's') {
+            if(!equip(player)) hUtils::text.reject("Failed to equip an item.");
+        }
+        else {
+            hUtils::text.reject("Invalid option!");
+        }
     }
     hUtils::text.clearAll();
 }
@@ -165,7 +172,7 @@ void inventory(Player &player) {
             total_pages  = (total_items + ITEM_LIMIT - 1) / ITEM_LIMIT;
             current_page = 1;  // we go back to the first page.
         } else if(choice == 's') {
-            equip(player);
+            if(!equip(player)) hUtils::text.reject("Failed to equip an item.");
         }
     }
     hUtils::text.clearAll();

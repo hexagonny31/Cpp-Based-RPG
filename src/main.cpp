@@ -36,12 +36,6 @@ int main() {
                 hUtils::text.reject("Invalid option!", 2);
                 continue;
             }
-        } catch(const LoadFailed &e) {
-            hUtils::text.reject(e.what(), 2);
-            continue;
-        } catch(const UserCancelled &e) {
-            hUtils::text.reject(e.what(), 2);
-            continue;
         } catch(const std::exception &e) {
             hUtils::text.reject(e.what(), 2);
             continue;
@@ -82,12 +76,6 @@ int main() {
                 hUtils::text.reject("Invalid option!", 5);
                 continue;
             }
-        } catch(const LoadFailed &e) {
-            hUtils::text.reject(e.what(), 5);
-            continue;
-        } catch(const UserCancelled &e) {
-            hUtils::text.reject(e.what(), 5);
-            continue;
         } catch(const std::exception &e) {
             hUtils::text.reject(e.what(), 5);
             continue;
