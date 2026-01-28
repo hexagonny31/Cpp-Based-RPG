@@ -56,10 +56,10 @@ int main() {
         hUtils::table.setElements(
             " [A] Character Stats", " [S] Inventory",
             " [Q] Gather Items",    " [W] Adventure",
-            " [E] Exit Game"
+            " [D] Save Character",  " [E] Exit Game"
         );
         hUtils::table.toColumn("left", 22, 2);
-        choice = charIn("\n");
+        choice = charIn();
         try {
             switch(choice) {
             case 'a': 
@@ -70,6 +70,8 @@ int main() {
                 break;
             case 'q': // gathering
                 break;
+            case 'd':
+                saveToFile(player); break;
             case 'e':
                 return 0;
             default:

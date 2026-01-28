@@ -13,10 +13,9 @@ using nj = nlohmann::json;
 
 //  descriptions that defines an equipment 
 struct Properties {
-    std::string weapon = "";
-    std::string damage = "";
-    std::string armor  = "";
-    std::string ammo   = "";
+    EquipType     equip_type     = EquipType::None;
+    WeaponRequire weapon_require = WeaponRequire::None;
+    ArmorType     armor_type     = ArmorType::None;
 };
 
 struct Item {
@@ -25,6 +24,7 @@ struct Item {
 
     // attribute modifiers
     Attributes attribute{};
+    Properties property{};
 
     // stat modifiers
     double increase_HP  = 0.0;  // adds health points by a percentage
@@ -36,7 +36,6 @@ struct Item {
     double dodge_bonus  = 0.0;  // extra dodge
 
     bool equipped   = false;
-    EquipType equip_type = EquipType::None;
     // other stuff maybe in the future like rarity bonuses and shit like that.
 };
 
@@ -44,13 +43,6 @@ struct ItemDatabase {
 private:
     ItemDatabase() = default;
     static std::unordered_map<std::string, Item> itemDatabase;
-    EquipType findSlot(const std::string &s) {
-        if(s == "weapon")     return EquipType::Weapon;
-        if(s == "helmet")     return EquipType::Helmet;
-        if(s == "chestplate") return EquipType::Chestplate;
-        if(s == "boots")      return EquipType::Boots;
-        return EquipType::None;
-    }
 public:
     static ItemDatabase& instance() {
         static ItemDatabase db;
@@ -76,8 +68,6 @@ public:
             Item item;
             item.id          = e["id"].get<std::string>();
             item.name        = e["name"].get<std::string>();
-            std::string t    = e.value("equip_type", "none");
-            item.equip_type  = findSlot(t);
 
             if(e.contains("attribute") && e["attribute"].is_object()) {
                 const auto& a = e["attribute"];
@@ -86,6 +76,13 @@ public:
                 item.attribute.endurance    = a.value("endurance", 0);
                 item.attribute.intelligence = a.value("intelligence", 0);
                 item.attribute.dexterity    = a.value("dexterity", 0);
+            }
+
+            if(e.contains("properties") && e["properties"].is_object()) {
+                const auto& p  = e["properties"];
+                item.property.armor_type     = (ArmorType)p.value("armor_type", 0);
+                item.property.equip_type     = (EquipType)p.value("equip_type", 0);
+                item.property.weapon_require = (WeaponRequire)p.value("weapon_require", 0);
             }
             
             item.increase_HP  = e.value("increase_HP" , 0);

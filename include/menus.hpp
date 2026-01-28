@@ -18,7 +18,7 @@ bool equip(Player &player){
     std::vector<EquipOption> opt;
     for(size_t i = 0; i != player.inventory.size(); ++i) {
         const  Item &it = player.inventory[i];
-        if(it.equip_type != EquipType::None && !it.equipped) opt.push_back({&it, it.name, i});
+        if(it.property.equip_type != EquipType::None && !it.equipped) opt.push_back({&it, it.name, i});
     }
 
     if(opt.empty()) return false;
@@ -45,7 +45,7 @@ bool equip(Player &player){
         EquipOption &selected = opt[y-1];
         const Item &equip = *selected.item;
         Slot slot;
-        switch(equip.equip_type) {
+        switch(equip.property.equip_type) {
         case EquipType::Weapon: {
             while(true) {
                 char z = charIn("\nPick a hand slot: [Q] Main Hand | [W] Off-Hand | [E] Exit\n");
@@ -56,9 +56,9 @@ bool equip(Player &player){
             }
             break;
         }
-        case EquipType::Helmet:     slot = Slot::Helmet;
-        case EquipType::Chestplate: slot = Slot::Chestplate;
-        case EquipType::Boots:      slot = Slot::Boots;
+        case EquipType::Helmet:     slot = Slot::Helmet;     break;
+        case EquipType::Chestplate: slot = Slot::Chestplate; break;
+        case EquipType::Boots:      slot = Slot::Boots;      break;
         }
         player.equipItem(&player.inventory[selected.i], slot);
         std::cout << "\nEquipped " << player.inventory[selected.i].name << ".\n";

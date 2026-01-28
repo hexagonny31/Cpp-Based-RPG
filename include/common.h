@@ -19,12 +19,27 @@ enum class Slot {
     COUNT
 };
 //  for item properties.
+//  identifier for equipment.
 enum class EquipType {
     None,
     Weapon,
     Helmet,
     Chestplate,
     Boots,
+};
+//  identifier for weapons equip requirement.
+enum class WeaponRequire {
+    None,
+    OneHand,
+    TwoHand
+};
+//  identifier for armor type
+enum class ArmorType {
+    None,
+    Light,
+    Medium,
+    Heavy,
+    FatHeavy
 };
 
 #endif
