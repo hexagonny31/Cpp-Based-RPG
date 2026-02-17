@@ -19,12 +19,11 @@ int main() {
     Player player;
     char c;
     while(true) {
-        FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
         hUtils::text.clearAll();
         c = '\0';
-        cout << "[Q] Create new save\n" <<
-                "[W] Select existing save\n" <<
-                "[E] Exit program\n";
+        cout << "[Q]   Create new save\n" <<
+                "[W]   Select existing save\n" <<
+                "[Esc] Exit program\n";
         c = GetInputKeymap({'Q','W','\x1B'});
         switch(std::toupper(c)) {
         case 'Q':
@@ -48,29 +47,31 @@ int main() {
 
     //  action menu.
     while(true) {
-        FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
         hUtils::text.clearAll();
         c = '\0';
         std::cout << "Action Menu:\n";
         hUtils::table.setElements(
             " [A] Character Stats", " [S] Inventory",
             " [Q] Gather Items",    " [W] Adventure",
-            " [D] Save Character",  " [E] Exit Game"
+            " [D] Save Character",  " [Esc] Exit Game"
         );
         hUtils::table.toColumn("left", 22, 2);
         c = GetInputKeymap({'Q','W','A','S','D','\x1B'});
         switch(std::toupper(c)) {
-        case 'A':    statistics(player); break;
-        case 'S':    inventory(player);  break;
+        case 'A':    statistics(player);
+                     break;
+        case 'S':    inventory(player);
+                     break;
         case 'W':    break;
         case 'Q':    break;
-        case 'D':    saveToFile(player); break;
+        case 'D':    saveToFile(player);
+                     break;
         case '\x1B': return 0;
         default:     continue;
         }
-        break;
     }
     
+    std::cout << "\nExited the menu unexpectedly.";
     hUtils::sleep(10000);
 
     return -1;

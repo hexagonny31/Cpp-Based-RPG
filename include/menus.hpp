@@ -13,10 +13,12 @@
 
 char GetInputKeymap(std::initializer_list<unsigned char> keys) {
     while(true) {
+        FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
         if((GetAsyncKeyState(VK_ESCAPE) >> 8) & 0x80) return '\x1B';
         for(const unsigned char c : keys) {
             if((GetAsyncKeyState(c) >> 8) & 0x80) {
                 while((GetAsyncKeyState(c) >> 8) & 0x80) Sleep(10);
+                FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
                 return c;
             }
         }
@@ -96,8 +98,6 @@ bool unEquip(Player &player) {
 
 
 bool Player::setAttributes() {
-    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
-
     if(allocation_pts <= 0) return false;
     while(true) {
         char c = '\0';
@@ -106,12 +106,12 @@ bool Player::setAttributes() {
         hUtils::table.setElements(
             " [1] Vigor",     " [4] Intelligence",
             " [2] Strength",  " [5] Dexterity",
-            " [3] Endurance", " [Esc] Cancel"
+            " [3] Endurance", " [E] Cancel"
         );
         hUtils::table.toColumn("left", 16, 2);
-        c = GetInputKeymap({'1','2','3','4','5','\x1B'});
+        c = GetInputKeymap({'1','2','3','4','5','E'});
         
-        if(c == '\x1B') return false;
+        if(c == 'E') return false;
 
         int allocation = intIn("How many points would you like to allocate?\n", 1, allocation_pts);
 
@@ -130,8 +130,6 @@ bool Player::setAttributes() {
 }
 
 void statistics(Player &player) {
-    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
-
     while(true) {
         char c ='\0';
         hUtils::text.clearAll(500);
@@ -155,26 +153,24 @@ void statistics(Player &player) {
                 << "  Intelligence: " << player.getIntelligence() << '\n'
                 << "  Dexterity:    " << player.getDexterity()    << '\n';
         hUtils::text.toLine();
-        std::cout << "[Q] Allocate | [A] Equip | [S] Unequip | [Esc] Exit\n";
-        c = GetInputKeymap({'Q','A','S','\x1B'});
+        std::cout << "[Q] Allocate | [A] Equip | [S] Unequip | [E] Exit\n";
+        c = GetInputKeymap({'Q','A','S','E'});
         switch(std::toupper(c)) {
         case 'Q':
-            if(!player.setAttributes()) continue;
+            player.setAttributes();
             break;
         case 'A':
             if(!equip(player)) continue;
             break;
         case 'S':
             break;
-        case '\x1B':
+        case 'E':
             return;
         }
     }
 }
 
 void inventory(Player &player) {
-    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
-
     const int ITEM_LIMIT = 10;
     int total_items  = player.inventory.size();
     int total_pages  = (total_items + ITEM_LIMIT - 1) / ITEM_LIMIT;
@@ -189,10 +185,10 @@ void inventory(Player &player) {
         hUtils::table.setElements(
             " [Q] Next",    " [W] Previous",
             " [A] Equip",   " [S] Unequip",
-            " [D] Sort by", " [Esc] Exit Inventory"
+            " [D] Sort by", " [E] Exit Inventory"
         );
         hUtils::table.toColumn("left", 13, 2);
-        char c = GetInputKeymap({'Q','W','A','S','D','\x1B'});
+        char c = GetInputKeymap({'Q','W','A','S','D','E'});
         switch(std::toupper(c)) {
         case 'Q':
             if(current_page < total_pages) ++current_page;
@@ -201,10 +197,10 @@ void inventory(Player &player) {
             if(current_page > 1) --current_page;
             break;
         case 'A':
-            if(!equip(player)) continue;
+            equip(player);
             break;
         case 'S':
-            if(!unEquip(player)) continue;
+            unEquip(player);
             break;
         case 'D': {
             std::cout << "Sort by: [1] Name | [2] Damage\n";
@@ -219,7 +215,7 @@ void inventory(Player &player) {
             current_page = 1;  // we go back to the first index :)
             break;
         }
-        case '\x1B':
+        case 'E':
             return;
         }
     }
