@@ -85,6 +85,7 @@ public:
                 item.property.weapon_require = (WeaponRequire)p.value("weapon_require", 0);
             }
             
+            // item bonuses.
             item.increase_HP  = e.value("increase_HP" , 0);
             item.increase_DMG = e.value("increase_DMG", 0);
             item.base_damage  = e.value("base_damage" , 0);

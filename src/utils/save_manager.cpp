@@ -1,5 +1,4 @@
 #include "hutils.h"
-#include "class_presets.h"
 #include "save_manager.h"
 #include "item_database.hpp"
 #include "entity.h"
@@ -8,12 +7,14 @@
 #include <unordered_map>
 #include <filesystem>
 #include <stdexcept>
+#include <windows.h>
 
 using namespace std::string_literals;
 namespace fs = std::filesystem;
 
 Player newCharacterSave() {
     hUtils::text.clearAll();
+    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
     std::cout << "Creating new save...\n\n";
     //  deciding for the character name.
     std::string init_name = strIn("Enter your character name (2 - 64 characters)\n", 2, 64);
@@ -25,15 +26,12 @@ Player newCharacterSave() {
     if(!init) throw std::runtime_error("Failed to load '" + PRESET_JSON_NAME + "'"s);
 
     const std::vector<ClassPreset> class_presets = *init;
-    //  construction a lookup table.
+    //  constructing a lookup table.
     std::unordered_map<std::string, int> lookup;
     std::vector<std::string> class_names;
     for(int i = 0; i < class_presets.size(); i++) {
         std::string temp = class_presets[i].class_name;
-        if(temp.empty()) {
-            hUtils::text.reject("Preset name is missing at index "s + std::to_string(i));
-            continue;
-        }
+        if(temp.empty()) continue;
         lookup[hUtils::text.toLowerCase(temp)] = i;
         class_names.push_back(temp);
     }
@@ -53,10 +51,7 @@ Player newCharacterSave() {
         if(input == "exit" || input == "e") throw std::runtime_error("Character creation cancelled by user.");
 
         std::unordered_map<std::string, int>::iterator cartesian = lookup.find(input);
-        if(cartesian == lookup.end()) {
-            hUtils::text.reject("Unable to find class preset.", 5);
-            continue;
-        }
+        if(cartesian == lookup.end()) continue;
         class_preset = class_presets[cartesian->second];
         break;
     }
@@ -81,6 +76,7 @@ Player newCharacterSave() {
 
 //  saving progress into a file. once i'm done with the new save utility.
 void saveToFile(const Player &player) {
+    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
     std::string name = player.getName();
     hUtils::text.trim(name);
     std::string FILE_NAME = "saves/" + name + ".save";
@@ -140,6 +136,7 @@ void saveToFile(const Player &player) {
 Player loadToFile() {
     //  deciding what save to load.
     hUtils::text.clearAll();
+    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
     std::cout << "Loading save file...\n\n";
     try {
         std::cout << "Pick a file to load:\n";

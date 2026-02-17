@@ -1,0 +1,23 @@
+{
+    "allocation_pts": 5,
+    "attribute": {
+        "dexterity": 2,
+        "endurance": 4,
+        "intelligence": 0,
+        "strength": 4,
+        "vigor": 0
+    },
+    "current_health": 100.0,
+    "current_mana": 100.0,
+    "equipment": [
+        null,
+        null,
+        null,
+        null,
+        null
+    ],
+    "inventory": [
+        "iron_longsword"
+    ],
+    "name": "Dumbing"
+}

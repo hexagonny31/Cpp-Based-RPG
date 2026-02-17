@@ -1,0 +1,29 @@
+{
+    "allocation_pts": 5,
+    "attribute": {
+        "dexterity": 0,
+        "endurance": 3,
+        "intelligence": 0,
+        "strength": 3,
+        "vigor": 2
+    },
+    "current_health": 120.0,
+    "current_mana": 100.0,
+    "equipment": [
+        "iron_shortsword",
+        "iron_shield",
+        "leather_helmet",
+        "leather_chestplate",
+        "leather_boots"
+    ],
+    "inventory": [
+        "iron_shortsword",
+        "iron_shield",
+        "leather_chestplate",
+        "leather_helmet",
+        "leather_boots",
+        "minor_hp",
+        "unusable"
+    ],
+    "name": "Testing"
+}

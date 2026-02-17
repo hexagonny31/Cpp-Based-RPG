@@ -1,0 +1,182 @@
+[
+    {
+        "name": "Iron Longsword",
+        "id": "iron_longsword",
+        "properties": {
+            "equip_type": 1,
+            "weapon_require": 2
+        },
+        "base_damage": 28,
+        "attribute": {
+            "strength": 2,
+            "endurance": 1,
+            "dexterity": -1
+        },
+        "dodge_bonus": -0.05
+    },
+    {
+        "name": "Iron Shortsword",
+        "id": "iron_shortsword",
+        "properties": {
+            "equip_type": 1,
+            "weapon_require": 1
+        },
+        "base_damage": 23.5,
+        "attribute": {
+            "dexterity": 3
+        },
+        "dodge_bonus": -0.02
+    },
+    {
+        "name": "Iron Dagger",
+        "id": "iron_dagger",
+        "properties": {
+            "equip_type": 1,
+            "weapon_require": 1
+        },
+        "base_damage": 15.87,
+        "attribute": {
+            "strength": -2,
+            "dexterity": 4
+        },
+        "dodge_bonus": 0.08
+    },
+    {
+        "name": "Iron Spear",
+        "id": "iron_spear",
+        "properties": {
+            "equip_type": 1,
+            "weapon_require": 2
+        },
+        "base_damage": 26.25,
+        "attribute": {
+            "strength": 2,
+            "endurance": 3,
+            "intelligence": -5
+        },
+        "dodge_bonus": 0.02
+    },
+    {
+        "name": "Iron Battleaxe",
+        "id": "iron_battleaxe",
+        "properties": {
+            "equip_type": 1,
+            "weapon_require": 2
+        },
+        "base_damage": 35,
+        "attribute": {
+            "endurance": 8,
+            "intelligence": -5,
+            "dexterity": -3
+        },
+        "dodge_bonus": -0.085
+    },
+    {
+        "name": "Iron Warhammer",
+        "id": "iron_warhammer",
+        "properties": {
+            "equip_type": 1,
+            "weapon_require": 2
+        },
+        "base_damage": 36.31,
+        "attribute": {
+            "endurance": 9,
+            "intelligence": -6,
+            "dexterity": -4
+        },
+        "dodge_bonus": -0.08
+    },
+    {
+        "name": "Iron Shield",
+        "id": "iron_shield",
+        "properties": {
+            "equip_type": 1,
+            "weapon_require": 1
+        },
+        "attribute": {
+            "endurance": 10,
+            "intelligence": -10
+        },
+        "resist_bonus": 0.25,
+        "dodge_bonus": -0.1
+    },
+    {
+        "name": "Wooden Wand",
+        "id": "wooden_wand",
+        "properties": {
+            "equip_type": 1,
+            "weapon_require": 1
+        },
+        "base_damage": 12.44,
+        "attribute": {
+            "strength": -10,
+            "endurance": -1,
+            "intelligence": 10
+        },
+        "dodge_bonus": 0.05
+    },
+    {
+        "name": "Wooden Shield",
+        "id": "wooden_shield",
+        "properties": {
+            "equip_type": 1,
+            "weapon_require": 1
+        },
+        "attribute": {
+            "endurance": 8,
+            "intelligence": -10
+        },
+        "resist_bonus": 18.75,
+        "dodge_bonus": -0.08
+    },
+    {
+        "name": "Leather Cap",
+        "id": "leather_helmet",
+        "properties": {
+            "equip_type": 2,
+            "armor_type": 1
+        },
+        "attribute": {
+            "endurance": 2
+        },
+        "resist_bonus": 3,
+        "dodge_bonus": 0.01
+    },
+    {
+        "name": "Leather Tunic",
+        "id": "leather_chestplate",
+        "properties": {
+            "equip_type": 3,
+            "armor_type": 1
+        },
+        "attribute": {
+            "endurance": 3,
+            "dexterity": 2
+        },
+        "resist_bonus": 8,
+        "dodge_bonus": 0.05
+    },
+    {
+        "name": "Leather Boots",
+        "id": "leather_boots",
+        "properties": {
+            "equip_type": 4,
+            "armor_type": 1
+        },
+        "attribute": {
+            "endurance": 2,
+            "dexterity": 1
+        },
+        "resist_bonus": 3,
+        "dodge_bonus": 0.02
+    },
+    {
+        "name": "Minor Health Potion",
+        "id": "minor_hp",
+        "increase_HP": 0.10
+    },
+    {
+        "name": "Useless Junk",
+        "id": "unusable"
+    }
+]

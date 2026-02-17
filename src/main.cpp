@@ -3,7 +3,9 @@
 #include "menus.hpp"
 #include "save_manager.h"
 
+#include <bitset>
 #include <iostream>
+#include <windows.h>
 
 using std::cout;
 
@@ -14,30 +16,27 @@ int main() {
     std::string FILE_NAME;
 
     //  create/select progress.
-    char choice;
     Player player;
-    cout << "[Q] Create new save\n" <<
-            "[W] Select existing save\n" <<
-            "[E] Exit program\n";
+    char c;
     while(true) {
-        choice = charIn("\n");
-        try {
-            switch(choice) {
-            case 'q': //  new save.
-                player = newCharacterSave();
-                saveToFile(player);
-                break;
-            case 'w': // select save.
-                player = loadToFile();
-                break;
-            case 'e':
-                return 0;
-            default:
-                hUtils::text.reject("Invalid option!", 2);
-                continue;
-            }
-        } catch(const std::exception &e) {
-            hUtils::text.reject(e.what(), 2);
+        FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+        hUtils::text.clearAll();
+        c = '\0';
+        cout << "[Q] Create new save\n" <<
+                "[W] Select existing save\n" <<
+                "[E] Exit program\n";
+        c = GetInputKeymap({'Q','W','\x1B'});
+        switch(std::toupper(c)) {
+        case 'Q':
+            player = newCharacterSave();
+            saveToFile(player);
+            break;
+        case 'W':
+            player = loadToFile();
+            break;
+        case '\x1B':
+            return 0;
+        default:
             continue;
         }
         break;
@@ -48,10 +47,10 @@ int main() {
     hUtils::sleep(2500);
 
     //  action menu.
-    
     while(true) {
-        choice = '\0';
+        FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
         hUtils::text.clearAll();
+        c = '\0';
         std::cout << "Action Menu:\n";
         hUtils::table.setElements(
             " [A] Character Stats", " [S] Inventory",
@@ -59,32 +58,20 @@ int main() {
             " [D] Save Character",  " [E] Exit Game"
         );
         hUtils::table.toColumn("left", 22, 2);
-        choice = charIn();
-        try {
-            switch(choice) {
-            case 'a': 
-                statistics(player); break;
-            case 's': 
-                inventory(player); break;
-            case 'w': // adventuring
-                break;
-            case 'q': // gathering
-                break;
-            case 'd':
-                saveToFile(player); break;
-            case 'e':
-                return 0;
-            default:
-                hUtils::text.reject("Invalid option!", 5);
-                continue;
-            }
-        } catch(const std::exception &e) {
-            hUtils::text.reject(e.what(), 5);
-            continue;
+        c = GetInputKeymap({'Q','W','A','S','D','\x1B'});
+        switch(std::toupper(c)) {
+        case 'A':    statistics(player); break;
+        case 'S':    inventory(player);  break;
+        case 'W':    break;
+        case 'Q':    break;
+        case 'D':    saveToFile(player); break;
+        case '\x1B': return 0;
+        default:     continue;
         }
+        break;
     }
     
     hUtils::sleep(10000);
 
-    return 0;
+    return -1;
 }

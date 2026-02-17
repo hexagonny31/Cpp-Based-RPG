@@ -84,6 +84,12 @@ namespace hUtils {
 
     Text text;
 
+    void Text::reject(const string& msg)
+    {
+        std::cout << msg;
+        sleep(2000);
+        text.clearAll();
+    }
     void Text::reject(const string& msg, int lines)
     {
         std::cout << msg;

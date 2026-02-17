@@ -1,0 +1,47 @@
+[
+    {
+        "class_name": "Warrior",
+        "main_hand":  "iron_longsword",
+        "attribute": {
+            "strength": 4,
+            "endurance": 4,
+            "dexterity": 2
+        }
+    },
+    {
+        "class_name": "Mage",
+        "main_hand":  "wooden_wand",
+        "off_hand":   "talisman",
+        "attribute": {
+            "endurance": 2,
+            "intelligence": 5,
+            "dexterity": 3
+        }
+    },
+    {
+        "class_name": "Thief",
+        "main_hand":  "iron_dagger",
+        "off_hand":   "iron_dagger",
+        "attribute": {
+            "strength": 3,
+            "endurance": 2,
+            "dexterity": 5
+        }
+    },
+    {
+        "class_name": "Tank",
+        "main_hand":  "iron_shortsword",
+        "off_hand":   "iron_shield",
+        "attribute": {
+            "vigor": 2,
+            "strength": 3,
+            "endurance": 3
+        }
+    },
+    {
+        "class_name": "Outcast",
+        "main_hand":  "wooden_club",
+        "starting_points": 15,
+        "attribute": { }
+    }
+]

@@ -1,0 +1,23 @@
+{
+    "allocation_pts": 5,
+    "attribute": {
+        "dexterity": 3,
+        "endurance": 2,
+        "intelligence": 5,
+        "strength": 0,
+        "vigor": 0
+    },
+    "current_health": 100.0,
+    "current_mana": 100.0,
+    "equipment": [
+        null,
+        null,
+        null,
+        null,
+        null
+    ],
+    "inventory": [
+        "wooden_wand"
+    ],
+    "name": "Lou"
+}
