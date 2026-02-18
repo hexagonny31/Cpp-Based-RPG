@@ -53,21 +53,31 @@ int main() {
         hUtils::table.setElements(
             " [A] Character Stats", " [S] Inventory",
             " [Q] Gather Items",    " [W] Adventure",
-            " [D] Save Character",  " [Esc] Exit Game"
+            " [D] Save Character",  " [E] Load Character",
+            " [Esc] Exit program"
         );
-        hUtils::table.toColumn("left", 22, 2);
-        c = GetInputKeymap({'Q','W','A','S','D','\x1B'});
+        hUtils::table.toColumn("left", 21, 2);
+        c = GetInputKeymap({'Q','W','A','S','D','E','\x1B'});
         switch(std::toupper(c)) {
-        case 'A':    statistics(player);
-                     break;
-        case 'S':    inventory(player);
-                     break;
-        case 'W':    break;
-        case 'Q':    break;
-        case 'D':    saveToFile(player);
-                     break;
-        case '\x1B': return 0;
-        default:     continue;
+        case 'A':
+            statistics(player);
+            break;
+        case 'S':
+            inventory(player);
+            break;
+        case 'W':
+            break;
+        case 'Q':
+            break;
+        case 'D':
+            saveToFile(player);
+            break;
+        case 'E':
+            saveToFile(player);
+            player = loadToFile();
+            break;
+        case '\x1B':
+            return 0;
         }
     }
     

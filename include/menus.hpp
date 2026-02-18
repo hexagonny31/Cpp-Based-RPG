@@ -80,22 +80,45 @@ bool equip(Player &player){
         player.equipItem(&player.inventory[selected.i], slot);
         std::cout << "\nEquipped " << player.inventory[selected.i].name << ".\n";
         hUtils::sleep(2500);
-        hUtils::text.clearAll();
-        break;
+        return true;
     }
-    return true;
 }
 
 bool unEquip(Player &player) {
+    if(player.getEquipment().empty()) return false;
+    std::vector<Slot> opt;
+
     for(size_t i = 0; (Slot)i != Slot::COUNT; i++) {
-        std::cout << player.getEquipmentName((Slot)i) << '\n';
+        if(player.getEquipment((Slot)i) == nullptr) continue;
+        opt.push_back((Slot)i);
     }
-    
-    hUtils::pause();
 
-    return true;
+    while(true) {
+        std::cout << "Choose an item to unequip:\n";
+        for(int i = 0; i != player.getEquipment().size(); ++i) std::cout << i+1 << ". " << player.getEquipmentName((Slot)i) <<  '\n';
+        std::string x = "";
+        std::cout << "\n> ";
+        std::getline(std::cin, x);
+
+        if(hUtils::text.toLowerCase(x) == "exit" || hUtils::text.toLowerCase(x) == "e") return false;
+        size_t y;
+        try {
+            y = std::stoul(x);
+        } catch(...) {
+            hUtils::text.reject("Unable to find item.", opt.size() + 3);
+            continue;
+        }
+        if(y == 0 || y > opt.size()) {
+            hUtils::text.reject("No such item.", opt.size() + 3);
+            continue;            
+        }
+        Slot selected = opt[y-1];
+        std::cout << "\nUnequipped " << player.getEquipmentName(selected) << ".\n";
+        player.unequipItem(selected);
+        hUtils::sleep(1800);
+        return true;
+    }
 }
-
 
 bool Player::setAttributes() {
     if(allocation_pts <= 0) return false;
@@ -154,18 +177,14 @@ void statistics(Player &player) {
                 << "  Dexterity:    " << player.getDexterity()    << '\n';
         hUtils::text.toLine();
         std::cout << "[Q] Allocate | [A] Equip | [S] Unequip | [E] Exit\n";
+
         c = GetInputKeymap({'Q','A','S','E'});
+
         switch(std::toupper(c)) {
-        case 'Q':
-            player.setAttributes();
-            break;
-        case 'A':
-            if(!equip(player)) continue;
-            break;
-        case 'S':
-            break;
-        case 'E':
-            return;
+        case 'Q': player.setAttributes(); break;
+        case 'A': equip(player);          break;
+        case 'S': unEquip(player);        break;
+        case 'E': return;
         }
     }
 }
@@ -177,9 +196,9 @@ void inventory(Player &player) {
     int current_page = 1;
     std::cout << "Showing inventory...\n\n";
     while(true) {
+        hUtils::text.clearAll();
         int start = (current_page - 1) * ITEM_LIMIT;
         int end   = (start + ITEM_LIMIT < total_items) ? (start + ITEM_LIMIT) : total_items;
-        hUtils::text.clearAll();
         std::cout << "Inventory (Page " << current_page << " of " << total_pages << ")\n";
         for(int i = start; i < end; ++i) std::cout << i + 1 << ". '" << player.getItemName(i) << "'\n";
         hUtils::table.setElements(
@@ -188,7 +207,9 @@ void inventory(Player &player) {
             " [D] Sort by", " [E] Exit Inventory"
         );
         hUtils::table.toColumn("left", 13, 2);
+
         char c = GetInputKeymap({'Q','W','A','S','D','E'});
+
         switch(std::toupper(c)) {
         case 'Q':
             if(current_page < total_pages) ++current_page;

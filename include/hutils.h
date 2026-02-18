@@ -93,7 +93,7 @@ namespace hUtils {
             oss << value;
             return oss.str();
         }
-        int findMaxWidth() const;
+        unsigned int findMaxWidth() const;
     
     public:
         template <typename... Args>
@@ -110,9 +110,9 @@ namespace hUtils {
             }
         }
         
-        HUTIL_API void toColumn   (std::string orientation = "left",
-                                   int givenWidth = 0,
-                                   int numberOfColumns = 2);
+        HUTIL_API void toColumn   (std::string  orientation     = "left",
+                                   unsigned int givenWidth      = 0,
+                                   unsigned int numberOfColumns = 2);
     };
 
     struct Bar {
