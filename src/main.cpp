@@ -25,17 +25,22 @@ int main() {
                 "[W]   Select existing save\n" <<
                 "[Esc] Exit program\n";
         c = GetInputKeymap({'Q','W','\x1B'});
-        switch(std::toupper(c)) {
-        case 'Q':
-            player = newCharacterSave();
-            saveToFile(player);
-            break;
-        case 'W':
-            player = loadToFile();
-            break;
-        case '\x1B':
-            return 0;
-        default:
+        try {
+            switch(std::toupper(c)) {
+            case 'Q':
+                player = newCharacterSave();
+                saveToFile(player);
+                break;
+            case 'W':
+                player = loadToFile();
+                break;
+            case '\x1B':
+                return 0;
+            default:
+                continue;
+            }
+        } catch(const std::exception &e) {
+            hUtils::text.reject(e.what());
             continue;
         }
         break;
@@ -45,7 +50,12 @@ int main() {
     cout << player.getEquipmentName(Slot::MainHand) << '\n';
     hUtils::sleep(2500);
 
-    //  action menu.
+    /*  this is where you probably will spend time the most.
+
+        to anyone seeing this, i'm still thinking of just joining
+        all the void functions into the cases but for now, i'll
+        keep them separated so i can just focus on functionality
+        and not all that readability bullshit.  */
     while(true) {
         hUtils::text.clearAll();
         c = '\0';
@@ -58,30 +68,37 @@ int main() {
         );
         hUtils::table.toColumn("left", 21, 2);
         c = GetInputKeymap({'Q','W','A','S','D','E','\x1B'});
-        switch(std::toupper(c)) {
-        case 'A':
-            statistics(player);
-            break;
-        case 'S':
-            inventory(player);
-            break;
-        case 'W':
-            break;
-        case 'Q':
-            break;
-        case 'D':
-            saveToFile(player);
-            break;
-        case 'E':
-            saveToFile(player);
-            player = loadToFile();
-            break;
-        case '\x1B':
-            return 0;
+        try {
+            switch(std::toupper(c)) {
+            case 'A':
+                statistics(player);
+                break;
+            case 'S':
+                inventory(player);
+                break;
+            case 'W':
+                break;
+            case 'Q':
+                break;
+            case 'D':
+                saveToFile(player);
+                break;
+            case 'E':
+                saveToFile(player);
+                player = loadToFile();
+                break;
+            case '\x1B':
+                return 0;
+            }
+        } catch(const std::exception &e) {
+            hUtils::text.reject(e.what());
         }
     }
     
-    std::cout << "\nExited the menu unexpectedly.";
+    /*  this should be logically impossible to reach but added this
+        anyway to let me know that it did the impossible or i did
+        something astronomically stupid.  */
+    std::cout << "\nExited the menu unexpectedly!";
     hUtils::sleep(10000);
 
     return -1;

@@ -8,11 +8,11 @@
 
 struct ClassPreset
 {
-    std::string class_name;
-    std::string main_hand;
-    std::string off_hand = "";
-    Attributes attribute;
-    int starting_pts = 5;
+    std::string class_name = "";
+    std::string main_hand  = "";
+    std::string off_hand   = "";
+    Attributes attribute   = {};
+    int starting_pts       = 10;
 };
 
 std::optional<std::vector<ClassPreset>> parsePresets(const std::string &FILE_NAME = "json/class_presets.json");

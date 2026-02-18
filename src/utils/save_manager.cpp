@@ -2,6 +2,7 @@
 #include "save_manager.h"
 #include "item_database.hpp"
 #include "entity.h"
+#include "menus.hpp"
 
 #include <iostream>
 #include <unordered_map>
@@ -23,7 +24,17 @@ Player newCharacterSave() {
     const std::string PRESET_JSON_NAME = "json/class_presets.json";
     std::optional<std::vector<ClassPreset>> init = parsePresets(PRESET_JSON_NAME);
 
-    if(!init) throw std::runtime_error("Failed to load '" + PRESET_JSON_NAME + "'"s);
+    Player new_player;
+    ClassPreset class_preset;
+
+    /*
+        if the program (somehow) fails to parse its contents, it instead use its default values.
+        
+        to anyone reading this, please do not- in any shape or form, modify or remove this statement.*/
+    if(!init) {
+        new_player.setName(init_name);
+        new_player.setAllocation(class_preset.starting_pts);
+    }
 
     const std::vector<ClassPreset> class_presets = *init;
     //  constructing a lookup table.
@@ -36,8 +47,6 @@ Player newCharacterSave() {
         class_names.push_back(temp);
     }
     //  the actual user interaction goes here.
-    Player new_player;
-    ClassPreset class_preset;
     while(true) {
         std::string input = "";
         std::cout << "Choose a preset for your character: \n";
@@ -82,23 +91,19 @@ void saveToFile(const Player &player) {
     std::string FILE_NAME = "saves/" + name + ".save";
 
     while(fs::exists(FILE_NAME)) {
-        char input;
+        char c = '\0';
         std::cout << "'" << FILE_NAME << "' already exists!\n" <<
                      "[Q] Overwrite save\n" <<
                      "[W] Enter new save name\n" <<
                      "[E] Cancel\n";
-        input = charIn("\n");
-        std::cout << '\n';
+        c = GetInputKeymap({'Q','W','E'});
 
-        if(input == 'q') {
+        if(c == 'q') {
             if(!proceed()) continue;
             break;
-        }
-        if(input == 'e') {
-            hUtils::text.clearAbove(7);
+        } else if(c == 'e') {
             throw std::runtime_error("Load cancelled by user.");
-        }
-        if(input == 'w') {
+        } else if(c == 'w') {
             std::string new_name = strIn("Enter a new name\n");
             hUtils::text.trim(new_name);
             FILE_NAME = "saves/" + new_name + ".save";

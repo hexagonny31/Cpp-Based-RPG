@@ -10,6 +10,10 @@
 namespace fs = std::filesystem;
 using nj = nlohmann::json;
 
+/*  i did everything i can so that this have as much error handling as possible.
+    hell, even made this fucking optional. there's something within me, telling
+    me that some random person will not do what he needs to do (which could just
+    probably me in the far future).  */
 std::optional<std::vector<ClassPreset>> parsePresets(const std::string &FILE_NAME) {
     std::ifstream file(FILE_NAME);
     if(!file.is_open()) {

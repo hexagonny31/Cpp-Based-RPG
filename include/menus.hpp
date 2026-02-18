@@ -42,7 +42,7 @@ bool equip(Player &player){
     
     while(true) {
         std::cout << "Choose an item to equip:\n";
-        for(int i = 0; i != opt.size(); ++i) std::cout << i+1 << ". " << opt[i].name <<  '\n';
+        for(size_t i = 0; i != opt.size(); ++i) std::cout << (int)i+1 << ". " << opt[i].name <<  '\n';
         std::string x = "";
         std::cout << "\n> ";
         std::getline(std::cin, x);
@@ -65,11 +65,11 @@ bool equip(Player &player){
         switch(equip.property.equip_type) {
         case EquipType::Weapon: {
             while(true) {
-                char z = charIn("\nPick a hand slot: [Q] Main Hand | [W] Off-Hand | [E] Exit\n");
-                if(z == 'e') return false;
-                if(z == 'q') { slot = Slot::MainHand; break; }
-                if(z == 'w') { slot = Slot::OffHand;  break; }
-                hUtils::text.reject("Invalid choice!", 4);
+                std::cout << "\nPick a hand slot: [Q] Main Hand | [W] Off-Hand | [E] Exit\n";
+                char z = GetInputKeymap({'E','Q','W'});
+                if(z == 'E') return false;
+                else if(z == 'Q') { slot = Slot::MainHand; break; }
+                else if(z == 'W') { slot = Slot::OffHand;  break; }
             }
             break;
         }
