@@ -8,23 +8,6 @@
 #include <vector>
 #include <algorithm>
 #include <unordered_map>
-#include <windows.h>
-#include <initializer_list>
-
-char GetInputKeymap(std::initializer_list<unsigned char> keys) {
-    while(true) {
-        FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
-        if((GetAsyncKeyState(VK_ESCAPE) >> 8) & 0x80) return '\x1B';
-        for(const unsigned char c : keys) {
-            if((GetAsyncKeyState(c) >> 8) & 0x80) {
-                while((GetAsyncKeyState(c) >> 8) & 0x80) Sleep(10);
-                FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
-                return c;
-            }
-        }
-        Sleep(8);
-    }
-}
 
 bool equip(Player &player){
     struct EquipOption {

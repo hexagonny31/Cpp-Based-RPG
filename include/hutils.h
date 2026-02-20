@@ -13,6 +13,7 @@
 #include <sstream>
 #include <regex>
 #include <iomanip>
+#include <initializer_list>
 
 #ifndef HUTIL_API
 #define HUTIL_API
@@ -26,6 +27,8 @@ bool proceed(std::string prompt = "Do you want to continue?");
 char charIn(std::string prompt = "");
 std::string strIn(std::string prompt = "", int min = 2, int max = 64);
 int intIn(std::string prompt = "", int min = 0, int max = 10);
+
+char GetInputKeymap(std::initializer_list<unsigned char> keys); //  Waits for a key press and returns the corresponding character.
 
 namespace hUtils {
 

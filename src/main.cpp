@@ -5,7 +5,6 @@
 
 #include <bitset>
 #include <iostream>
-#include <windows.h>
 
 using std::cout;
 

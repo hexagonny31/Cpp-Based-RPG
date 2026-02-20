@@ -2,13 +2,11 @@
 #include "save_manager.h"
 #include "item_database.hpp"
 #include "entity.h"
-#include "menus.hpp"
 
 #include <iostream>
 #include <unordered_map>
 #include <filesystem>
 #include <stdexcept>
-#include <windows.h>
 
 using namespace std::string_literals;
 namespace fs = std::filesystem;
@@ -68,17 +66,10 @@ Player newCharacterSave() {
     new_player.setName(init_name);
 
     // get total attribute points from the preset and assign it to the player.
-    int total_pts = class_preset.attribute.vigor + class_preset.attribute.strength
-                  + class_preset.attribute.endurance + class_preset.attribute.intelligence
-                  + class_preset.attribute.dexterity;
-    new_player.attribute.vigor        += class_preset.attribute.vigor;
-    new_player.attribute.strength     += class_preset.attribute.strength;
-    new_player.attribute.endurance    += class_preset.attribute.endurance;
-    new_player.attribute.intelligence += class_preset.attribute.intelligence;
-    new_player.attribute.dexterity    += class_preset.attribute.dexterity;
-
+    Attributes attr = class_preset.attribute;
+    int total_pts = attr.vigor + attr.strength + attr.endurance + attr.intelligence + attr.dexterity;
+    new_player.attribute = attr;
     new_player.setAllocation(class_preset.starting_pts - total_pts);
-
 
     new_player.updateHealth();
 
