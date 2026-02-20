@@ -27,13 +27,12 @@ Player newCharacterSave() {
     Player new_player;
     ClassPreset class_preset;
 
-    /*
-        if the program (somehow) fails to parse its contents, it instead use its default values.
-        
+    /*  if the program (somehow) fails to parse its contents, it instead use its default values.
         to anyone reading this, please do not- in any shape or form, modify or remove this statement.*/
     if(!init) {
         new_player.setName(init_name);
         new_player.setAllocation(class_preset.starting_pts);
+        return new_player;
     }
 
     const std::vector<ClassPreset> class_presets = *init;
@@ -67,18 +66,24 @@ Player newCharacterSave() {
     std::cout << '\n';
     //  setting the preset to the new player object.
     new_player.setName(init_name);
-    new_player.setAllocation(class_preset.starting_pts);
 
-    new_player.attribute.vigor        = class_preset.attribute.vigor;
-    new_player.attribute.strength     = class_preset.attribute.strength;
-    new_player.attribute.endurance    = class_preset.attribute.endurance;
-    new_player.attribute.intelligence = class_preset.attribute.intelligence;
-    new_player.attribute.dexterity    = class_preset.attribute.dexterity;
+    // get total attribute points from the preset and assign it to the player.
+    int total_pts = class_preset.attribute.vigor + class_preset.attribute.strength
+                  + class_preset.attribute.endurance + class_preset.attribute.intelligence
+                  + class_preset.attribute.dexterity;
+    new_player.attribute.vigor        += class_preset.attribute.vigor;
+    new_player.attribute.strength     += class_preset.attribute.strength;
+    new_player.attribute.endurance    += class_preset.attribute.endurance;
+    new_player.attribute.intelligence += class_preset.attribute.intelligence;
+    new_player.attribute.dexterity    += class_preset.attribute.dexterity;
+
+    new_player.setAllocation(class_preset.starting_pts - total_pts);
+
 
     new_player.updateHealth();
 
-    if (!class_preset.main_hand.empty()) new_player.addToInventory(class_preset.main_hand);
-    if (!class_preset.off_hand.empty()) new_player.addToInventory(class_preset.off_hand);
+    if(!class_preset.main_hand.empty()) new_player.addToInventory(class_preset.main_hand);
+    if(!class_preset.off_hand.empty()) new_player.addToInventory(class_preset.off_hand);
 
     return new_player;
 }

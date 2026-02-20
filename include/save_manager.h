@@ -12,7 +12,7 @@ struct ClassPreset
     std::string main_hand  = "";
     std::string off_hand   = "";
     Attributes attribute   = {};
-    int starting_pts       = 10;
+    int starting_pts       = 15;
 };
 
 std::optional<std::vector<ClassPreset>> parsePresets(const std::string &FILE_NAME = "json/class_presets.json");

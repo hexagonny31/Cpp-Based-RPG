@@ -41,7 +41,6 @@
     {
         "class_name": "Outcast",
         "main_hand":  "wooden_club",
-        "starting_points": 15,
         "attribute": { }
     }
 ]
