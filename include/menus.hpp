@@ -71,9 +71,10 @@ bool unEquip(Player &player) {
     if(player.getEquipment().empty()) return false;
     std::vector<Slot> opt;
 
-    for(size_t i = 0; (Slot)i != Slot::COUNT; i++) {
-        if(player.getEquipment((Slot)i) == nullptr) continue;
-        opt.push_back((Slot)i);
+    for(size_t i = 0; i != to_index(Slot::COUNT); ++i) {
+        Slot s = static_cast<Slot>(i);
+        if(player.getEquipment(s) == nullptr) continue;
+        opt.push_back(s);
     }
 
     while(true) {
@@ -183,7 +184,7 @@ void inventory(Player &player) {
         int start = (current_page - 1) * ITEM_LIMIT;
         int end   = (start + ITEM_LIMIT < total_items) ? (start + ITEM_LIMIT) : total_items;
         std::cout << "Inventory (Page " << current_page << " of " << total_pages << ")\n";
-        for(int i = start; i < end; ++i) std::cout << i + 1 << ". '" << player.getItemName(i) << "'\n";
+        for(int i = start; i < end; ++i) std::cout << i+1 << ". '" << player.getItemName((size_t)i) << "'\n";
         hUtils::table.setElements(
             " [Q] Next",    " [W] Previous",
             " [A] Equip",   " [S] Unequip",

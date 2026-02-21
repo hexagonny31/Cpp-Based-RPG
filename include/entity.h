@@ -22,7 +22,7 @@ struct Player
     std::vector<Item> inventory;
     std::vector<Item*> equipment;
 
-    Player() : equipment(static_cast<size_t>(Slot::COUNT), nullptr) {}
+    Player() : equipment(to_index(Slot::COUNT), nullptr) {}
 
     std::string        getName         ()   const { return name; }
     int                getAllocationPts()   const { return allocation_pts; }
@@ -33,14 +33,14 @@ struct Player
     int         getEndurance    ()          const { return attribute.endurance; }
     int         getIntelligence ()          const { return attribute.intelligence; }
     int         getDexterity    ()          const { return attribute.dexterity; }
-    Item*       getEquipment    (Slot slot) const { return equipment[static_cast<size_t>(slot)]; }
+    Item*       getEquipment    (Slot slot) const { return equipment[to_index(slot)]; }
     std::string getEquipmentName(Slot slot) const {
         Item* item = getEquipment(slot);
         return item ? item->name : "Empty";
     }
-    Item        getItem         (int slot)  const { return inventory[slot]; }
-    std::string getItemName     (int slot)  const {
-        if (slot < 0 || static_cast<size_t>(slot) >= inventory.size())
+    Item        getItem         (size_t slot)  const { return inventory[slot]; }
+    std::string getItemName     (size_t slot)  const {
+        if(slot < 0 || slot >= inventory.size())
             return "Empty";
         return inventory[slot].name;
     }
@@ -58,14 +58,14 @@ struct Player
         if(!item || item->property.equip_type == EquipType::None) return;
         Item* current = getEquipment(slot);
         if(current) current->equipped = false;
-        equipment[static_cast<size_t>(slot)] = item;
+        equipment[to_index(slot)] = item;
         item->equipped = true;
     }
     void unequipItem(Slot slot) {
         Item* current = getEquipment(slot);
         if(!current) return;
         current->equipped = false;
-        equipment[static_cast<size_t>(slot)] = nullptr;
+        equipment[to_index(slot)] = nullptr;
     }
 
     // health/mana manipulators n' shit

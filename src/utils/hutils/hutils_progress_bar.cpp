@@ -39,6 +39,6 @@ namespace hUtils {
     {
         value = std::clamp(value, 0.0, maxPoints);
         printBar(value, maxPoints, filledColor, emptyColor);
-        sleep(200);
+        sleep(10);
     }
 }

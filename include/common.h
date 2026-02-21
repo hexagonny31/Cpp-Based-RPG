@@ -18,6 +18,9 @@ enum class Slot {
     Boots,
     COUNT
 };
+constexpr size_t to_index(Slot s) noexcept {
+    return static_cast<size_t>(s);
+}
 //  for item properties.
 //  identifier for equipment.
 enum class EquipType {
