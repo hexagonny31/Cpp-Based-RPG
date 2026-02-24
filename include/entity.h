@@ -17,12 +17,14 @@ struct Entity {
     Entity() : equipment(to_index(Slot::COUNT), nullptr) {}
 
     static constexpr double max_bonus = 250.0;
-    double current_health = 100.0;  // fallback value. just incase if it doesn't update initially.
-    double current_mana   = 100.0;
+    double df_hp = 100.0;
+    double df_mp = 100.0;
+    double curr_hp     = 100.0;  // fallback value. just incase if it doesn't update initially.
+    double curr_mp     = 100.0;
 
-    std::string        getName         ()   const { return name; }
-    Attributes         getAttributes   ()   const { return attribute; }
-    std::vector<Item*> getEquipment    ()   const { return equipment; }
+    std::string        getName      ()      const { return name; }
+    Attributes         getAttributes()      const { return attribute; }
+    std::vector<Item*> getEquipment ()      const { return equipment; }
     int         getVigor        ()          const { return attribute.vigor; }
     int         getStrength     ()          const { return attribute.strength; }
     int         getEndurance    ()          const { return attribute.endurance; }
@@ -35,62 +37,60 @@ struct Entity {
     }
 
     // health/mana manipulators n' shit
-    double getCurrentHealth() const { return current_health; }
+    double getCurrentHealth() const { return curr_hp; }
     double getTotalHealth  () const {
-        const double default_health = 100.0;
         double total_vigor = attribute.vigor;
-        double bonus_health = 0.0;
+        double bonus_hp = 0.0;
         
         for(const Item* item : equipment) {
             if(item && item->equipped) {
-                bonus_health += item->health_bonus;
+                bonus_hp += item->health_bonus;
                 total_vigor += item->attribute.vigor;
             }
         }
         
-        bonus_health = bonus_health + (10.0 * total_vigor);
-        return default_health + bonus_health;
+        bonus_hp = bonus_hp + (10.0 * total_vigor);
+        return df_hp + bonus_hp;
     }
-    double getCurrentMana() const { return current_mana; }
+    double getCurrentMana() const { return curr_mp; }
     double getTotalMana  () const { 
-        const double default_mana = 100.0;
-        double bonus_mana = 15.0 * attribute.intelligence;
+        double bonus_mp = 15.0 * attribute.intelligence;
         
         for(const Item* item : equipment) {
-            if(item && item->equipped) bonus_mana += item->attribute.intelligence;
+            if(item && item->equipped) bonus_mp += item->attribute.intelligence;
         }
         
-        return default_mana + bonus_mana;
+        return df_mp + bonus_mp;
     }
     // actual stats n' shit.
     double getDamage() const {
-        double base_damage = 10.0;
-        int total_strength = attribute.strength;
+        double base_dmg = 10.0;
+        int total_str = attribute.strength;
         
         for(const Item* item : equipment) {
-            if(item && item->equipped) total_strength += item->attribute.strength;
+            if(item && item->equipped) total_str += item->attribute.strength;
         }
         Item* weapon = getEquipment(Slot::MainHand);
         if(weapon && weapon->equipped) {
-            base_damage += weapon->base_damage;
+            base_dmg += weapon->base_damage;
         }
         
-        double strength_scaling = (max_bonus * total_strength) / (100.0 * (max_bonus + total_strength));
-        double total_weapon_damage = base_damage;
-        return total_weapon_damage * (1.0 + strength_scaling);
+        double str_scaling = (max_bonus * total_str) / (100.0 * (max_bonus + total_str));
+        double total_weapon_dmg = base_dmg;
+        return total_weapon_dmg * (1.0 + str_scaling);
     }
     double getPhysicalResist() const {
-        int total_endurance = attribute.endurance;
+        int total_end = attribute.endurance;
         double total_resist_bonus = 0.0;
         
         for(const Item* item : equipment) {
             if(item && item->equipped) {
-                total_endurance += item->attribute.endurance;  // from any equipment
-                total_resist_bonus += item->resist_bonus;      // from armor and shields
+                total_end += item->attribute.endurance;    // from any equipment
+                total_resist_bonus += item->resist_bonus;  // from armor and shields
             }
         }
         
-        double base_resist = (max_bonus * total_endurance) / (100.0 * (max_bonus + total_endurance));
+        double base_resist = (max_bonus * total_end) / (100.0 * (max_bonus + total_end));
         return total_resist_bonus + base_resist;
     }
     double getDodgeChance() const {
@@ -105,16 +105,16 @@ struct Entity {
         }
     
         double base_dodge = (max_bonus * attribute.dexterity) / (100.0 * (max_bonus + attribute.dexterity));
-        return std::min(1.0, 0.15 + total_dodge_bonus + base_dodge);
+        return (std::min)(1.0, 0.15 + total_dodge_bonus + base_dodge);
     }
 
     void setName         (const std::string& newName) { name = newName; }
-    void setCurrentHealth(const double new_health)    { current_health = new_health; }
-    void setCurrentMana  (const double new_mana)      { current_mana   = new_mana; }
+    void setCurrentHealth(const double new_hp)        { curr_hp = new_hp; }
+    void setCurrentMana  (const double new_mp)        { curr_mp = new_mp; }
 
-    bool isAlive     () const { return current_health > 0.0; }
-    void updateHealth()       { current_health = getTotalHealth(); }
-    void updateMana  ()       { current_mana   = getTotalMana(); }
+    bool isAlive     () const { return curr_hp > 0.0; }
+    void updateHealth()       { curr_hp = getTotalHealth(); }
+    void updateMana  ()       { curr_mp = getTotalMana(); }
     bool didDodge    () const {
         double total = getDodgeChance();
         double random = static_cast<double>(rand())/RAND_MAX;
@@ -127,8 +127,13 @@ struct Player : public Entity
     int allocation_pts = 0;
     std::vector<Item> inventory;
 
-    Player() {}
-    
+    Player() = default;
+    Player(const Player&) = delete;
+    Player& operator=(const Player&) = delete;
+
+    Player(Player&&) = default;
+    Player& operator=(Player&&) = default;
+
     int         getAllocationPts()             const { return allocation_pts; }
     Item        getItem         (size_t slot)  const { return inventory[slot]; }
     std::string getItemName     (size_t slot)  const {
@@ -162,10 +167,11 @@ struct Player : public Entity
 };
 
 struct Monster : public Entity {
-    int lvl     = 1;
+    int lvl       = 1;
     int xp_reward = 0;
+    LootTable loot;
 
-    Monster() {}
+    Monster() : loot({{"Nothing", 1.0}}) {}
 
     static Monster create(const std::string& new_name, int new_lvl = 1) {
         Monster m;
