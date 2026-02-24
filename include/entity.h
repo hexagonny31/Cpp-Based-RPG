@@ -10,18 +10,21 @@
 #include <algorithm>
 
 struct Entity {
+protected:
     std::string name;
     Attributes attribute;
     std::vector<Item*> equipment;
+    double dmg = 1.0;
 
     Entity() : equipment(to_index(Slot::COUNT), nullptr) {}
 
     static constexpr double max_bonus = 250.0;
-    double df_hp = 100.0;
+    double df_hp = 100.0;  // fallback value. just incase if it doesn't update initially.
     double df_mp = 100.0;
-    double curr_hp     = 100.0;  // fallback value. just incase if it doesn't update initially.
-    double curr_mp     = 100.0;
+    double curr_hp;
+    double curr_mp;
 
+public:
     std::string        getName      ()      const { return name; }
     Attributes         getAttributes()      const { return attribute; }
     std::vector<Item*> getEquipment ()      const { return equipment; }
@@ -64,7 +67,7 @@ struct Entity {
     }
     // actual stats n' shit.
     double getDamage() const {
-        double base_dmg = 10.0;
+        double base_dmg = dmg;
         int total_str = attribute.strength;
         
         for(const Item* item : equipment) {
@@ -111,6 +114,12 @@ struct Entity {
     void setName         (const std::string& newName) { name = newName; }
     void setCurrentHealth(const double new_hp)        { curr_hp = new_hp; }
     void setCurrentMana  (const double new_mp)        { curr_mp = new_mp; }
+    void setAttributes   (const Attributes new_attr)  { attribute = new_attr; }
+    void setVigor        (const int new_alloc)        { attribute.vigor = new_alloc; }
+    void setStrength     (const int new_alloc)        { attribute.strength = new_alloc; }
+    void setEndurance    (const int new_alloc)        { attribute.endurance = new_alloc; }
+    void setIntelligence (const int new_alloc)        { attribute.intelligence = new_alloc; }
+    void setDexterity    (const int new_alloc)        { attribute.dexterity = new_alloc; }
 
     bool isAlive     () const { return curr_hp > 0.0; }
     void updateHealth()       { curr_hp = getTotalHealth(); }
@@ -143,7 +152,7 @@ struct Player : public Entity
     }
 
     void setAllocation(int newAllocation) { allocation_pts = newAllocation; }
-    bool setAttributes ();
+    bool setAttribute ();
 
     bool addToInventory(const std::string& id) {
         auto init = ItemDatabase::instance().find(id);

@@ -23,19 +23,24 @@ constexpr int SCREEN_WIDTH  = 75;
 constexpr int SCREEN_HEIGHT = 30;
 
 std::string colorLabel(std::string label, const int color, bool use356 = true);
-bool proceed(std::string prompt = "Do you want to continue?");
-char charIn(std::string prompt = "");
-std::string strIn(std::string prompt = "", int min = 2, int max = 64);
-int intIn(std::string prompt = "", int min = 0, int max = 10);
-
-char GetInputKeymap(std::initializer_list<unsigned char> keys); //  Waits for a key press and returns the corresponding character.
 
 namespace hUtils {
 
     // --- SYSTEM UTILITIES ---
-    HUTIL_API void setConsoleWindowSize();          //  Adjust console size.
-    HUTIL_API void pause(bool clearBuffer = false); //  Cross-platform system pause.
-    HUTIL_API void sleep(int milliseconds);         //  Sleep for a given duration.
+    #ifdef _WIN32
+        HUTIL_API char GetInputKeymap(std::initializer_list<unsigned char> keys);
+    #endif
+    HUTIL_API void        SetConsoleWindowSize();
+    HUTIL_API void        Pause               (bool clearBuffer = false); //  Cross-platform system pause.
+    HUTIL_API void        Sleep               (int milliseconds);         //  Sleep for a given duration.
+    HUTIL_API bool        Proceed             (std::string prompt = "Do you want to continue?");
+    HUTIL_API char        GetCharacterInput   (std::string prompt = "");
+    HUTIL_API std::string GetStringInput      (std::string prompt = "",
+                                               int min = 2,
+                                               int max = 64);
+    HUTIL_API int         GetIntegerInput     (std::string prompt = "",
+                                               int min = 0,
+                                               int max = 10);
 
     // --- TEXT UTILITIES ---
     struct Text {
@@ -59,8 +64,8 @@ namespace hUtils {
         HUTIL_API std::string toLowerCase(std::string text);     //  Convert string to lowercase.
         HUTIL_API std::string toUpperCase(std::string text);     //  Convert string to uppercase.
         template <typename T>
-        HUTIL_API std::string toString(const T& value,           //  Converts int and doubles to string.
-                                       int precision)
+        HUTIL_API std::string toString   (const T& value,        //  Converts int and doubles to string.
+                                          int precision)
         {
             std::ostringstream oss;
             if(precision >= 0 && std::is_floating_point<T>::value) {
@@ -75,14 +80,15 @@ namespace hUtils {
         HUTIL_API std::string bgColor    (int textColor = 0,
                                           bool use256 = false);
         HUTIL_API std::string defaultText();                     //  Reset text color.
-        HUTIL_API std::string stripAnsi(const std::string& text) const
+        HUTIL_API std::string stripAnsi  (const std::string& text) const
         {
             return std::regex_replace(text, std::regex("\033\\[[0-9;]*m"), "");
         }
 
-        HUTIL_API void clearAll          (int delay = 0);                     //  Clears every output in the terminal.
-        HUTIL_API void clearBelow        (int line);             //  Clears an assigned line below it.
-        HUTIL_API void clearAbove        (int line);             //  Clears an assigned line above it.
+        HUTIL_API void clearAll          (int delay = 0);           //  Clears every output in the terminal.
+        HUTIL_API void clearBelow        (int line);                //  Clears an assigned line below it.
+        HUTIL_API void clearAbove        (int line,                 //  Clears an assigned line above it.
+                                          bool clrBaseIdx = false);
     };
 
     struct Table {

@@ -1,7 +1,7 @@
 {
-    "allocation_pts": 5,
+    "allocation_pts": 2,
     "attribute": {
-        "dexterity": 0,
+        "dexterity": 3,
         "endurance": 3,
         "intelligence": 0,
         "strength": 3,

@@ -107,16 +107,6 @@ public:
  * 
  * The load() function reads the JSON file and populates the item database,
  * while the find() function allows retrieval of items by their ID.
- * 
- * Usage pattern:
- * @code
- *  // At the start of the program
- *  ItemDatabase::instance().load("path/to/items.json");
- *     
- *  // Later, when needed (e.g., when a player acquires an item)
- *  // You can find this exact usage in include/entity.h when adding items to inventory.
- *  auto item = ItemDatabase::instance().find("item_id");
- * @endcode
  */
 struct ItemDatabase {
 private:

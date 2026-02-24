@@ -49,7 +49,7 @@ bool equip(Player &player){
         case EquipType::Weapon: {
             while(true) {
                 std::cout << "\nPick a hand slot: [Q] Main Hand | [W] Off-Hand | [E] Exit\n";
-                char z = GetInputKeymap({'E','Q','W'});
+                char z = hUtils::GetInputKeymap({'E','Q','W'});
                 if(z == 'E') return false;
                 else if(z == 'Q') { slot = Slot::MainHand; break; }
                 else if(z == 'W') { slot = Slot::OffHand;  break; }
@@ -62,7 +62,7 @@ bool equip(Player &player){
         }
         player.equipItem(&player.inventory[selected.i], slot);
         std::cout << "\nEquipped " << player.inventory[selected.i].name << ".\n";
-        hUtils::sleep(2500);
+        hUtils::Sleep(2500);
         return true;
     }
 }
@@ -99,12 +99,12 @@ bool unEquip(Player &player) {
         Slot selected = opt[y-1];
         std::cout << "\nUnequipped " << player.getEquipmentName(selected) << ".\n";
         player.unequipItem(selected);
-        hUtils::sleep(1800);
+        hUtils::Sleep(1800);
         return true;
     }
 }
 
-bool Player::setAttributes() {
+bool Player::setAttribute() {
     if(allocation_pts <= 0) return false;
     while(true) {
         char c = '\0';
@@ -116,11 +116,14 @@ bool Player::setAttributes() {
             " [3] Endurance", " [E] Cancel"
         );
         hUtils::table.toColumn("left", 16, 2);
-        c = GetInputKeymap({'1','2','3','4','5','E'});
+        c = hUtils::GetInputKeymap({'1','2','3','4','5','E'});
         
         if(c == 'E') return false;
 
-        int allocation = intIn("How many points would you like to allocate?\n", 1, allocation_pts);
+        int allocation = hUtils::GetIntegerInput(
+            "How many points would you like to allocate? (avail: "
+            + std::to_string(allocation_pts) + ")\n", 
+            1, allocation_pts);
 
         switch(c) {
         case '1':    attribute.vigor        += allocation; break;
@@ -162,10 +165,10 @@ void statistics(Player &player) {
         hUtils::text.toLine();
         std::cout << "[Q] Allocate | [A] Equip | [S] Unequip | [E] Exit\n";
 
-        c = GetInputKeymap({'Q','A','S','E'});
+        c = hUtils::GetInputKeymap({'Q','A','S','E'});
 
         switch(std::toupper(c)) {
-        case 'Q': player.setAttributes(); break;
+        case 'Q': player.setAttribute(); break;
         case 'A': equip(player);          break;
         case 'S': unEquip(player);        break;
         case 'E': return;
@@ -192,7 +195,7 @@ void inventory(Player &player) {
         );
         hUtils::table.toColumn("left", 13, 2);
 
-        char c = GetInputKeymap({'Q','W','A','S','D','E'});
+        char c = hUtils::GetInputKeymap({'Q','W','A','S','D','E'});
 
         switch(std::toupper(c)) {
         case 'Q':
@@ -209,7 +212,7 @@ void inventory(Player &player) {
             break;
         case 'D': {
             std::cout << "Sort by: [1] Name | [2] Damage\n";
-            char option = GetInputKeymap({'1','2'});
+            char option = hUtils::GetInputKeymap({'1','2'});
             if(option == '1')
                 std::sort(player.inventory.begin(), player.inventory.end(),
                           [](const Item &a, const Item &b) { return a.name < b.name; });

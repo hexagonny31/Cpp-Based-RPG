@@ -1,0 +1,28 @@
+[
+    {
+        "name": "Dummy",
+        "id": "target_dummy",
+        "df_hp": 9999,
+        "df_mp": 1,
+        "attribute": {
+            "vigor": 0,
+            "strength": 0,
+            "endurance": 0,
+            "intelligence": 0,
+            "dexterity": 0
+        },
+        "equipment": [
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        "loot": [
+            { "id": "unusable", "weight": 0.1 },
+            { "id": "unusable", "weight": 0.1 }
+        ],
+        "min_gold": 0,
+        "max_gold": 0
+    }
+]

@@ -1,4 +1,3 @@
-#include "hutils.h"
 #include "item_database.hpp"
 #include "menus.hpp"
 #include "save_manager.h"
@@ -11,7 +10,11 @@ using std::cout;
 std::unordered_map<std::string, Item> ItemDatabase::itemDatabase;
 
 int main() {
-    ItemDatabase::instance().load();
+    if(!ItemDatabase::instance().load()) {
+        std::cerr << "Failed to load ItemDatabase instance.\n";
+        hUtils::Pause();
+        return -1;
+    }
     std::string FILE_NAME;
 
     //  create/select progress.
@@ -23,7 +26,7 @@ int main() {
         cout << "[Q]   Create new save\n" <<
                 "[W]   Select existing save\n" <<
                 "[Esc] Exit program\n";
-        c = GetInputKeymap({'Q','W','\x1B'});
+        c = hUtils::GetInputKeymap({'Q','W','\x1B'});
         try {
             switch(std::toupper(c)) {
             case 'Q':
@@ -34,7 +37,7 @@ int main() {
                 player = loadToFile();
                 break;
             case '\x1B':
-                return 0;
+                return 1;
             default:
                 continue;
             }
@@ -47,7 +50,7 @@ int main() {
 
     cout << player.getName() << "'s save file selected.\n";
     cout << player.getEquipmentName(Slot::MainHand) << '\n';
-    hUtils::sleep(2500);
+    hUtils::Sleep(2500);
 
     /*  this is where you probably will spend time the most.
 
@@ -66,7 +69,7 @@ int main() {
             " [Esc] Exit program"
         );
         hUtils::table.toColumn("left", 21, 2);
-        c = GetInputKeymap({'Q','W','A','S','D','E','\x1B'});
+        c = hUtils::GetInputKeymap({'Q','W','A','S','D','E','\x1B'});
         try {
             switch(std::toupper(c)) {
             case 'A':
@@ -87,7 +90,7 @@ int main() {
                 player = loadToFile();
                 break;
             case '\x1B':
-                return 0;
+                return 1;
             }
         } catch(const std::exception &e) {
             hUtils::text.reject(e.what());
@@ -98,7 +101,7 @@ int main() {
         anyway to let me know that it did the impossible or i did
         something astronomically stupid.  */
     std::cout << "\nExited the menu unexpectedly!";
-    hUtils::sleep(10000);
+    hUtils::Sleep(10000);
 
-    return -1;
+    return 0;
 }

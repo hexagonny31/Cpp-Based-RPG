@@ -18,7 +18,7 @@ std::optional<std::vector<ClassPreset>> parsePresets(const std::string &FILE_NAM
     std::ifstream file(FILE_NAME);
     if(!file.is_open()) {
         std::cout << "Failed to open " << FILE_NAME << '\n';
-        hUtils::sleep(2000);
+        hUtils::Sleep(2000);
         return std::nullopt;
     }
 
@@ -27,7 +27,7 @@ std::optional<std::vector<ClassPreset>> parsePresets(const std::string &FILE_NAM
         file >> json;
     } catch(const nj::parse_error&) {
         std::cout << "Failed to parse " << FILE_NAME << '\n';
-        hUtils::sleep(2000);
+        hUtils::Sleep(2000);
         return std::nullopt;  // if JSON file is not valid.
     }
     if(!json.is_array()) return std::nullopt;
@@ -55,7 +55,7 @@ std::optional<std::vector<ClassPreset>> parsePresets(const std::string &FILE_NAM
     }
     if(result.empty()) {
         std::cout << "No valid presets found in " << FILE_NAME << '\n';
-        hUtils::sleep(2000);
+        hUtils::Sleep(2000);
         return std::nullopt;  // if JSON is valid but logically wrong.
     }
     return result;

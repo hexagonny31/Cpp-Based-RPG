@@ -16,7 +16,7 @@ Player newCharacterSave() {
     FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
     std::cout << "Creating new save...\n\n";
     //  deciding for the character name.
-    std::string init_name = strIn("Enter your character name (2 - 64 characters)\n", 2, 64);
+    std::string init_name = hUtils::GetStringInput("Enter your character name (2 - 64 characters)\n", 2, 64);
     if(init_name == "e") throw std::runtime_error("Load cancelled by user.");
     //  creating action.
     const std::string PRESET_JSON_NAME = "json/class_presets.json";
@@ -68,7 +68,7 @@ Player newCharacterSave() {
     // get total attribute points from the preset and assign it to the player.
     Attributes attr = class_preset.attribute;
     int total_pts = attr.vigor + attr.strength + attr.endurance + attr.intelligence + attr.dexterity;
-    new_player.attribute = attr;
+    new_player.setAttributes(attr);
     new_player.setAllocation(class_preset.starting_pts - total_pts);
 
     new_player.updateHealth();
@@ -92,15 +92,14 @@ void saveToFile(const Player &player) {
                      "[Q] Overwrite save\n" <<
                      "[W] Enter new save name\n" <<
                      "[E] Cancel\n";
-        c = GetInputKeymap({'Q','W','E'});
+        c = hUtils::GetInputKeymap({'Q','W','E'});
 
-        if(c == 'q') {
-            if(!proceed()) continue;
-            break;
-        } else if(c == 'e') {
+        if(c == 'Q') {
+            if(hUtils::Proceed()) break;
+        } else if(c == 'E') {
             throw std::runtime_error("Load cancelled by user.");
-        } else if(c == 'w') {
-            std::string new_name = strIn("Enter a new name\n");
+        } else if(c == 'W') {
+            std::string new_name = hUtils::GetStringInput("Enter a new name\n");
             hUtils::text.trim(new_name);
             FILE_NAME = "saves/" + new_name + ".save";
         }
@@ -113,14 +112,14 @@ void saveToFile(const Player &player) {
     json["current_health"] = player.getCurrentHealth();
     json["current_mana"]   = player.getCurrentMana();
 
-    json["attribute"]["vigor"]        = player.attribute.vigor;
-    json["attribute"]["strength"]     = player.attribute.strength;
-    json["attribute"]["endurance"]    = player.attribute.endurance;
-    json["attribute"]["intelligence"] = player.attribute.intelligence;
-    json["attribute"]["dexterity"]    = player.attribute.dexterity;
+    json["attribute"]["vigor"]        = player.getVigor();
+    json["attribute"]["strength"]     = player.getStrength();
+    json["attribute"]["endurance"]    = player.getEndurance();
+    json["attribute"]["intelligence"] = player.getIntelligence();
+    json["attribute"]["dexterity"]    = player.getDexterity();
 
     json["equipment"] = nj::array();
-    for(const auto &item : player.equipment) {
+    for(const auto &item : player.getEquipment()) {
         if(item != nullptr) json["equipment"].push_back(item->id);
         else json["equipment"].push_back(nullptr);
     }
@@ -131,6 +130,7 @@ void saveToFile(const Player &player) {
     if(!output.is_open()) throw std::runtime_error("Failed to open output save file '"s + FILE_NAME + "'"s);
     output << json.dump(4);
     std::cout << "Game saved successfully!\n\n";
+    hUtils::Sleep(2000);
 }
 
 //  loading and parsing save files are next here.
@@ -149,7 +149,7 @@ Player loadToFile() {
     } catch(const fs::filesystem_error& e) {
         throw std::runtime_error("Failed to access 'saves/' directory: "s + e.what());
     }
-    std::string load_name = strIn("\n");
+    std::string load_name = hUtils::GetStringInput("\n");
     if(load_name == "exit" || load_name == "e") throw std::runtime_error("Load cancelled by user.");
 
     const std::string& FILE_NAME = "saves/" + load_name + ".save";
@@ -173,11 +173,11 @@ Player loadToFile() {
 
     if(json.contains("attribute") && json["attribute"].is_object()) {
         auto attr = json["attribute"];
-        loaded_player.attribute.vigor        = attr.value("vigor", 0);
-        loaded_player.attribute.strength     = attr.value("strength", 0);
-        loaded_player.attribute.endurance    = attr.value("endurance", 0);
-        loaded_player.attribute.intelligence = attr.value("intelligence", 0);
-        loaded_player.attribute.dexterity    = attr.value("dexterity", 0);
+        loaded_player.setVigor(attr.value("vigor", 0));
+        loaded_player.setStrength(attr.value("strength", 0));
+        loaded_player.setEndurance(attr.value("endurance", 0));
+        loaded_player.setIntelligence(attr.value("intelligence", 0));
+        loaded_player.setDexterity(attr.value("dexterity", 0));
     }
     std::unordered_map<std::string, int> lookup;
     if(json.contains("inventory") && json["inventory"].is_array()) {
