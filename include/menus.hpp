@@ -16,33 +16,44 @@ bool equip(Player &player){
         size_t i;
     };
     std::vector<EquipOption> opt;
-    for(size_t i = 0; i != player.inventory.size(); ++i) {
-        const  Item &it = player.inventory[i];
+    const auto &inv = player.getInventory();
+    for(size_t i = 0; i != inv.size(); ++i) {
+        const  Item &it = inv[i];
         if(it.property.equip_type != EquipType::None && !it.equipped) opt.push_back({&it, it.name, i});
     }
 
     if(opt.empty()) return false;
-    
-    while(true) {
-        std::cout << "Choose an item to equip:\n";
-        for(size_t i = 0; i != opt.size(); ++i) std::cout << (int)i+1 << ". " << opt[i].name <<  '\n';
-        std::string x = "";
-        std::cout << "\n> ";
-        std::getline(std::cin, x);
 
-        if(hUtils::text.toLowerCase(x) == "exit" || hUtils::text.toLowerCase(x) == "e") return false;
-        size_t y;
-        try {
-            y = std::stoul(x);
-        } catch(...) {
-            hUtils::text.reject("Unable to find item.", opt.size() + 3);
-            continue;
+    while(true) {
+        int pos = 0;
+        EquipOption &selected = opt[0];
+        while(true) {
+            hUtils::text.clearAll(15);
+            std::cout << "Choose an item to equip:\n";
+            for(size_t i(0); i != opt.size(); ++i) {
+                if(i == pos)
+                    std::cout << hUtils::text.bgColor(45) << (int)i+1 << ". " << opt[i].name << hUtils::text.defaultText() << '\n';
+                else std::cout << (int)i+1 << ". " << opt[i].name << '\n';
+            }
+            char c = hUtils::GetInputKeymap({'W', 'S', 'E', '\x0D'});
+            if(c == 'E') return false;
+            
+            switch(c) {
+            case 'W':
+                if(!(pos - 1 < 0)) --pos;
+                continue;
+            case 'S':
+                if(!(pos + 1 >= (int)opt.size())) ++pos;
+                continue;
+            case '\x0D':
+                selected = opt[pos];
+                break;
+            default:
+                continue;
+            }
+            break;
         }
-        if(y == 0 || y > opt.size()) {
-            hUtils::text.reject("No such item.", opt.size() + 3);
-            continue;            
-        }
-        EquipOption &selected = opt[y-1];
+
         const Item &equip = *selected.item;
         Slot slot;
         switch(equip.property.equip_type) {
@@ -60,8 +71,8 @@ bool equip(Player &player){
         case EquipType::Chestplate: slot = Slot::Chestplate; break;
         case EquipType::Boots:      slot = Slot::Boots;      break;
         }
-        player.equipItem(&player.inventory[selected.i], slot);
-        std::cout << "\nEquipped " << player.inventory[selected.i].name << ".\n";
+        player.equipItem(&player.getInventory()[selected.i], slot);
+        std::cout << "\nEquipped " << player.getInventory()[selected.i].name << ".\n";
         hUtils::Sleep(2500);
         return true;
     }
@@ -69,34 +80,39 @@ bool equip(Player &player){
 
 bool unEquip(Player &player) {
     if(player.getEquipment().empty()) return false;
-    std::vector<Slot> opt;
 
-    for(size_t i = 0; i != to_index(Slot::COUNT); ++i) {
-        Slot s = static_cast<Slot>(i);
-        if(player.getEquipment(s) == nullptr) continue;
-        opt.push_back(s);
-    }
-
+    Slot selected;
     while(true) {
-        std::cout << "Choose an item to unequip:\n";
-        for(int i = 0; i != player.getEquipment().size(); ++i) std::cout << i+1 << ". " << player.getEquipmentName((Slot)i) <<  '\n';
-        std::string x = "";
-        std::cout << "\n> ";
-        std::getline(std::cin, x);
+        size_t pos = 0;
+        selected = Slot::COUNT;
+        while(true) {
+            hUtils::text.clearAll(15);
+            std::cout << "Choose an item to unequip:\n";
+            for(size_t i(0); i != player.getEquipment().size(); ++i) {
+                std::string temp = player.getEquipmentName((Slot)i);
+                if(i == pos)
+                    std::cout << hUtils::text.bgColor(45) << (int)i+1 << ". " << temp << hUtils::text.defaultText() << '\n';
+                else std::cout << (int)i+1 << ". " << temp << '\n';
+            }
+            char c = hUtils::GetInputKeymap({'W', 'S', 'E', '\x0D'});
+            if(c == 'E') return false;
 
-        if(hUtils::text.toLowerCase(x) == "exit" || hUtils::text.toLowerCase(x) == "e") return false;
-        size_t y;
-        try {
-            y = std::stoul(x);
-        } catch(...) {
-            hUtils::text.reject("Unable to find item.", opt.size() + 3);
-            continue;
+            switch(c) {
+            case 'W':
+                if(!(pos - 1 < 0)) --pos;
+                continue;
+            case 'S':
+                if(!(pos + 1 >= (int)Slot::COUNT)) ++pos;
+                continue;
+            case '\x0D':
+                if(player.getEquipment((Slot)pos) == nullptr) continue;
+                else selected = (Slot)pos;
+                break;
+            default:
+                continue;
+            }
+            break;
         }
-        if(y == 0 || y > opt.size()) {
-            hUtils::text.reject("No such item.", opt.size() + 3);
-            continue;            
-        }
-        Slot selected = opt[y-1];
         std::cout << "\nUnequipped " << player.getEquipmentName(selected) << ".\n";
         player.unequipItem(selected);
         hUtils::Sleep(1800);
@@ -146,8 +162,8 @@ void statistics(Player &player) {
         std::cout << "Player Info:\n"
                 << "  Name:   " << player.getName() << '\n'
                 << "  Points: " << player.getAllocationPts() << '\n';
-        hUtils::bar.setBar(player.getCurrentHealth(), player.getTotalHealth(), 124);
-        hUtils::bar.setBar(player.getCurrentMana(),   player.getTotalMana());
+        hUtils::bar.setBar("HP", player.getCurrentHealth(), player.getTotalHealth(false), 124);
+        hUtils::bar.setBar("MP", player.getCurrentMana(),   player.getTotalMana(false));
         hUtils::text.toLine();
         std::cout << "Equipment:\n"
                 << "  Main Hand:  " << player.getEquipmentName(Slot::MainHand)   << '\n'
@@ -156,12 +172,12 @@ void statistics(Player &player) {
                 << "  Chestplate: " << player.getEquipmentName(Slot::Chestplate) << '\n'
                 << "  Boots:      " << player.getEquipmentName(Slot::Boots)      << '\n';
         hUtils::text.toLine();
-        std::cout << "Attributes:\n"
-                << "  Vigor:        " << player.getVigor()        << '\n'
-                << "  Strength:     " << player.getStrength()     << '\n'
-                << "  Endurance:    " << player.getEndurance()    << '\n'
-                << "  Intelligence: " << player.getIntelligence() << '\n'
-                << "  Dexterity:    " << player.getDexterity()    << '\n';
+        std::cout << std::setprecision(2) << "Attributes:\n"
+                << "  Vigor:        " << player.getVigor()       << " (" << player.getTotalHealth(true)        << ")\n"
+                << "  Strength:     " << player.getStrength()    << " (" << player.getDamage(true)*100         << "%)\n"
+                << "  Endurance:    " << player.getEndurance()   << " (" << player.getPhysicalResist(true)*100 << "%)\n"
+                << "  Intelligence: " << player.getIntelligence()<< " (" << player.getTotalMana(true)          << ")\n"
+                << "  Dexterity:    " << player.getDexterity()   << " (" << player.getDodgeChance(true)*100    << "%)\n";
         hUtils::text.toLine();
         std::cout << "[Q] Allocate | [A] Equip | [S] Unequip | [E] Exit\n";
 
@@ -169,8 +185,8 @@ void statistics(Player &player) {
 
         switch(std::toupper(c)) {
         case 'Q': player.setAttribute(); break;
-        case 'A': equip(player);          break;
-        case 'S': unEquip(player);        break;
+        case 'A': equip(player);         break;
+        case 'S': unEquip(player);       break;
         case 'E': return;
         }
     }
@@ -178,7 +194,7 @@ void statistics(Player &player) {
 
 void inventory(Player &player) {
     const int ITEM_LIMIT = 10;
-    int total_items  = player.inventory.size();
+    int total_items  = player.getInventory().size();
     int total_pages  = (total_items + ITEM_LIMIT - 1) / ITEM_LIMIT;
     int current_page = 1;
     std::cout << "Showing inventory...\n\n";
@@ -213,12 +229,13 @@ void inventory(Player &player) {
         case 'D': {
             std::cout << "Sort by: [1] Name | [2] Damage\n";
             char option = hUtils::GetInputKeymap({'1','2'});
+            auto &inv = player.getInventory();
             if(option == '1')
-                std::sort(player.inventory.begin(), player.inventory.end(),
+                std::sort(inv.begin(), inv.end(),
                           [](const Item &a, const Item &b) { return a.name < b.name; });
-            else std::sort(player.inventory.begin(), player.inventory.end(),
+            else std::sort(inv.begin(), inv.end(),
                            [](const Item &a, const Item &b) { return a.increase_DMG < b.increase_DMG; });
-            total_items  = player.inventory.size();
+            total_items  = inv.size();
             total_pages  = (total_items + ITEM_LIMIT - 1) / ITEM_LIMIT;
             current_page = 1;  // we go back to the first index :)
             break;

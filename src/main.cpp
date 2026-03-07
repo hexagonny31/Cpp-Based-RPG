@@ -1,17 +1,23 @@
 #include "item_database.hpp"
 #include "menus.hpp"
 #include "save_manager.h"
+#include "monsters.hpp"
 
-#include <bitset>
 #include <iostream>
 
 using std::cout;
 
 std::unordered_map<std::string, Item> ItemDatabase::itemDatabase;
+std::unordered_map<std::string, Monster> MonsterDatabase::monsterDatabase;
 
 int main() {
     if(!ItemDatabase::instance().load()) {
         std::cerr << "Failed to load ItemDatabase instance.\n";
+        hUtils::Pause();
+        return -1;
+    }
+    if(!MonsterDatabase::instance().load()) {
+        std::cerr << "Failed to load MonsterDatabase instance.\n";
         hUtils::Pause();
         return -1;
     }

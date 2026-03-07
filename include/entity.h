@@ -41,74 +41,85 @@ public:
 
     // health/mana manipulators n' shit
     double getCurrentHealth() const { return curr_hp; }
-    double getTotalHealth  () const {
+    double getTotalHealth(const bool ignore_equipment) const {
         double total_vigor = attribute.vigor;
         double bonus_hp = 0.0;
         
-        for(const Item* item : equipment) {
-            if(item && item->equipped) {
-                bonus_hp += item->health_bonus;
-                total_vigor += item->attribute.vigor;
+        if(!ignore_equipment) {
+            for(const Item* item : equipment) {
+                if(item && item->equipped) {
+                    bonus_hp += item->health_bonus;
+                    total_vigor += item->attribute.vigor;
+                }
             }
+            return df_hp + bonus_hp + (10.0 * total_vigor);
+        } else {
+            return (10.0 * total_vigor);
         }
-        
-        bonus_hp = bonus_hp + (10.0 * total_vigor);
-        return df_hp + bonus_hp;
     }
     double getCurrentMana() const { return curr_mp; }
-    double getTotalMana  () const { 
+    double getTotalMana  (const bool ignore_equipment) const { 
         double bonus_mp = 15.0 * attribute.intelligence;
         
-        for(const Item* item : equipment) {
-            if(item && item->equipped) bonus_mp += item->attribute.intelligence;
+        if(!ignore_equipment) {
+            for(const Item* item : equipment) {
+                if(item && item->equipped) bonus_mp += item->attribute.intelligence;
+            }
+            return df_mp + bonus_mp;
+        } else {
+            return bonus_mp;
         }
-        
-        return df_mp + bonus_mp;
     }
     // actual stats n' shit.
-    double getDamage() const {
+    double getDamage(const bool ignore_equipment) const {
         double base_dmg = dmg;
         int total_str = attribute.strength;
         
-        for(const Item* item : equipment) {
-            if(item && item->equipped) total_str += item->attribute.strength;
+        if(!ignore_equipment) {
+            for(const Item* item : equipment) {
+                if(item && item->equipped) total_str += item->attribute.strength;
+            }
+            Item* weapon = getEquipment(Slot::MainHand);
+            if(weapon && weapon->equipped) {
+                base_dmg += weapon->base_damage;
+            }
+            double total_weapon_dmg = base_dmg;
+            return total_weapon_dmg * (1.0 + ((max_bonus * total_str) / (100.0 * (max_bonus + total_str))));
+        } else {
+            return (max_bonus * total_str) / (100.0 * (max_bonus + total_str));
         }
-        Item* weapon = getEquipment(Slot::MainHand);
-        if(weapon && weapon->equipped) {
-            base_dmg += weapon->base_damage;
-        }
-        
-        double str_scaling = (max_bonus * total_str) / (100.0 * (max_bonus + total_str));
-        double total_weapon_dmg = base_dmg;
-        return total_weapon_dmg * (1.0 + str_scaling);
     }
-    double getPhysicalResist() const {
+    double getPhysicalResist(const bool ignore_equipment) const {
         int total_end = attribute.endurance;
         double total_resist_bonus = 0.0;
-        
-        for(const Item* item : equipment) {
-            if(item && item->equipped) {
-                total_end += item->attribute.endurance;    // from any equipment
-                total_resist_bonus += item->resist_bonus;  // from armor and shields
+  
+        if(!ignore_equipment) {
+            for(const Item* item : equipment) {
+                if(item && item->equipped) {
+                    total_end += item->attribute.endurance;    // from any equipment
+                    total_resist_bonus += item->resist_bonus;  // from armor and shields
+                }
             }
+            return total_resist_bonus + ((max_bonus * total_end) / (100.0 * (max_bonus + total_end)));
+        } else {
+            return (max_bonus * total_end) / (100.0 * (max_bonus + total_end));
         }
-        
-        double base_resist = (max_bonus * total_end) / (100.0 * (max_bonus + total_end));
-        return total_resist_bonus + base_resist;
     }
-    double getDodgeChance() const {
-        int total_dexterity = attribute.dexterity;
+    double getDodgeChance(const bool ignore_equipment) const {
+        int total_dex = attribute.dexterity;
         double total_dodge_bonus = 0.0;
         
-        for(const Item* item : equipment) {
-            if(item && item->equipped) {
-                total_dexterity += item->attribute.dexterity;  // from any equipment
-                total_dodge_bonus += item->dodge_bonus;        // from armor and shields
+        if(!ignore_equipment) {
+            for(const Item* item : equipment) {
+                if(item && item->equipped) {
+                    total_dex += item->attribute.dexterity;  // from any equipment
+                    total_dodge_bonus += item->dodge_bonus;  // from armor and shields
+                }
             }
         }
-    
-        double base_dodge = (max_bonus * attribute.dexterity) / (100.0 * (max_bonus + attribute.dexterity));
-        return (std::min)(1.0, 0.15 + total_dodge_bonus + base_dodge);
+
+        double base_dodge = (max_bonus * total_dex) / (100.0 * (max_bonus + total_dex));
+        return (std::min)(1.0, (ignore_equipment ? 0 : 0.05) + total_dodge_bonus + base_dodge);
     }
 
     void setName         (const std::string& newName) { name = newName; }
@@ -122,20 +133,21 @@ public:
     void setDexterity    (const int new_alloc)        { attribute.dexterity = new_alloc; }
 
     bool isAlive     () const { return curr_hp > 0.0; }
-    void updateHealth()       { curr_hp = getTotalHealth(); }
-    void updateMana  ()       { curr_mp = getTotalMana(); }
+    void updateHealth()       { curr_hp = getTotalHealth(false); }
+    void updateMana  ()       { curr_mp = getTotalMana(false); }
     bool didDodge    () const {
-        double total = getDodgeChance();
+        double total = getDodgeChance(false);
         double random = static_cast<double>(rand())/RAND_MAX;
         return random < total;
     }
 };
 
-struct Player : public Entity
-{
+struct Player : public Entity {
+private:
     int allocation_pts = 0;
     std::vector<Item> inventory;
 
+public:
     Player() = default;
     Player(const Player&) = delete;
     Player& operator=(const Player&) = delete;
@@ -150,6 +162,8 @@ struct Player : public Entity
             return "Empty";
         return inventory[slot].name;
     }
+    std::vector<Item>&       getInventory()       { return inventory; }
+    const std::vector<Item>& getInventory() const { return inventory; }
 
     void setAllocation(int newAllocation) { allocation_pts = newAllocation; }
     bool setAttribute ();
@@ -176,28 +190,24 @@ struct Player : public Entity
 };
 
 struct Monster : public Entity {
-    int lvl       = 1;
-    int xp_reward = 0;
+private:
+    std::string id = "";
+    int lvl        = 1;
+    int xp_reward  = 0;
     LootTable loot;
 
+public:
     Monster() : loot({{"Nothing", 1.0}}) {}
 
-    static Monster create(const std::string& new_name, int new_lvl = 1) {
-        Monster m;
-        m.name = new_name;
-        m.lvl = new_lvl;
+    std::string getID()        const { return id; }
+    int         getLvl()       const { return lvl; }
+    int         getXP()        const { return xp_reward; }
+    LootTable   getLootTable() const { return loot; }
 
-        int base_vigor = 15, base_str = 12, base_end = 14, base_int = 8, base_dex = 16;
-        m.attribute.vigor        = base_vigor + (new_lvl * 3);
-        m.attribute.strength     = base_str   + (new_lvl * 2);
-        m.attribute.endurance    = base_end   + (new_lvl * 2);
-        m.attribute.intelligence = base_int   + new_lvl;
-        m.attribute.dexterity    = base_dex   + (new_lvl * 2);
-        
-        m.xp_reward = 30 + (new_lvl * 20);
-        m.updateHealth();
-        return m; 
-    }
+    void setID       (const std::string new_id) { id = new_id; }
+    void setLvl      (const int new_lvl)        { lvl = new_lvl; }
+    void setXP       (const int new_xp_reward)  { xp_reward = new_xp_reward; }
+    void setLootTable(const LootTable new_loot) { loot = std::move(new_loot); }
 };
 
 #endif

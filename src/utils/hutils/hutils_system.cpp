@@ -19,6 +19,7 @@ namespace hUtils {
         while(true) {
             FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
             if((GetAsyncKeyState(VK_ESCAPE) >> 8) & 0x80) return '\x1B';
+            else if((GetAsyncKeyState(VK_RETURN) >> 8) & 0x08) return '\x0D';
             for(const unsigned char c : keys) {
                 if((GetAsyncKeyState(c) >> 8) & 0x80) {
                     while((GetAsyncKeyState(c) >> 8) & 0x80) Sleep(10);

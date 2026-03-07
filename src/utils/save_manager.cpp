@@ -124,7 +124,7 @@ void saveToFile(const Player &player) {
         else json["equipment"].push_back(nullptr);
     }
     json["inventory"] = nj::array();
-    for(const auto &item : player.inventory) json["inventory"].push_back(item.id);
+    for(const auto &item : player.getInventory()) json["inventory"].push_back(item.id);
 
     std::ofstream output(FILE_NAME);
     if(!output.is_open()) throw std::runtime_error("Failed to open output save file '"s + FILE_NAME + "'"s);
@@ -197,7 +197,7 @@ Player loadToFile() {
                 const std::string item_name = item_name_json.get<std::string>();
                 std::unordered_map<std::string, int>::iterator cartesian = lookup.find(item_name);
                 if(cartesian == lookup.end()) continue;
-                Item *item = &loaded_player.inventory[cartesian->second];
+                Item *item = &loaded_player.getInventory()[cartesian->second];
 
                 loaded_player.equipItem(item, static_cast<Slot>(i));
             }

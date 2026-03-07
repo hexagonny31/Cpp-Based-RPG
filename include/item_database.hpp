@@ -15,6 +15,8 @@ using nj = nlohmann::json;
 
 // Properties struct representing the equip type and requirements of an item.
 struct Properties {
+    bool          sellable       = true;                 // Indicates if the item can be sold.
+    bool          consumable     = false;                // Indicates if the item is consumed on use (e.g., potions).
     EquipType     equip_type     = EquipType::None;      // Defines the type of equipment (e.g., weapon, armor).
     WeaponRequire weapon_require = WeaponRequire::None;  // For weapons, indicates if it's one-handed or two-handed.
     ArmorType     armor_type     = ArmorType::None;      // For armor, indicates if it's light, medium, heavy, etc.
@@ -24,6 +26,7 @@ struct Properties {
 struct Item {
     std::string name;
     std::string id;
+    bool equipped   = false;
 
     Attributes attribute{};
     Properties property{};
@@ -36,8 +39,7 @@ struct Item {
     double resist_bonus = 0.0;  // Extra armor/resist.
     double dodge_bonus  = 0.0;  // Extra dodge chance.
 
-    bool equipped   = false;
-    // other stuff maybe in the future like rarity bonuses and shit like that.
+    // TODO: Create a method that calculates the total value of the item based on its properties and attributes.
 };
 
 /** 
@@ -121,7 +123,7 @@ public:
      * @brief Returns the single global instance (Meyers singleton).
      * @return Reference to the ItemDatabase.
      */
-    static ItemDatabase& instance() {
+    static ItemDatabase &instance() {
         static ItemDatabase db;
         return db;
     }
@@ -131,7 +133,7 @@ public:
      * @param FILE_NAME The path to the JSON file containing item data.
      * @return true if loading was successful, false otherwise.
      */
-    bool load(const std::string& FILE_NAME = "json/items.json") {
+    bool load(const std::string &FILE_NAME = "json/items.json") {
         std::ifstream file(FILE_NAME);
         if(!file.is_open()) return false;
 
@@ -144,37 +146,46 @@ public:
         if(!json.is_array()) return false;
 
         itemDatabase.clear();
-        for(const auto& e : json) {
-            if(!e.contains("name") || !e.contains("id")) continue;
+        int i = 0;
+        for(const auto &e : json) {
+            hUtils::text.clearAll();
+            if(e.contains("name") && e.contains("id")) {
+                Item item;
+                item.id   = e["id"].get<std::string>();
+                item.name = e["name"].get<std::string>();
 
-            Item item;
-            item.id          = e["id"].get<std::string>();
-            item.name        = e["name"].get<std::string>();
+                if(e.contains("attribute") && e["attribute"].is_object()) {
+                    const auto& a = e["attribute"];
+                    item.attribute.vigor        = a.value("vigor", 0);
+                    item.attribute.strength     = a.value("strength", 0);
+                    item.attribute.endurance    = a.value("endurance", 0);
+                    item.attribute.intelligence = a.value("intelligence", 0);
+                    item.attribute.dexterity    = a.value("dexterity", 0);
+                }
+                if(e.contains("properties") && e["properties"].is_object()) {
+                    const auto& p  = e["properties"];
+                    item.property.armor_type     = (ArmorType)p.value("armor_type", 0);
+                    item.property.equip_type     = (EquipType)p.value("equip_type", 0);
+                    item.property.weapon_require = (WeaponRequire)p.value("weapon_require", 0);
+                }
+                // item bonuses.
+                item.increase_HP  = e.value("increase_HP" , 0);
+                item.increase_DMG = e.value("increase_DMG", 0);
+                item.base_damage  = e.value("base_damage" , 0);
+                item.health_bonus = e.value("health_bonus", 0);
+                item.damage_bonus = e.value("damage_bonus", 0);
+                item.resist_bonus = e.value("resist_bonus", 0);
+                item.dodge_bonus  = e.value("dodge_bonus" , 0);
 
-            if(e.contains("attribute") && e["attribute"].is_object()) {
-                const auto& a = e["attribute"];
-                item.attribute.vigor        = a.value("vigor", 0);
-                item.attribute.strength     = a.value("strength", 0);
-                item.attribute.endurance    = a.value("endurance", 0);
-                item.attribute.intelligence = a.value("intelligence", 0);
-                item.attribute.dexterity    = a.value("dexterity", 0);
+                itemDatabase[item.id] = item;
             }
-            if(e.contains("properties") && e["properties"].is_object()) {
-                const auto& p  = e["properties"];
-                item.property.armor_type     = (ArmorType)p.value("armor_type", 0);
-                item.property.equip_type     = (EquipType)p.value("equip_type", 0);
-                item.property.weapon_require = (WeaponRequire)p.value("weapon_require", 0);
+            hUtils::bar.setBar("Loading items", i, json.size());
+            ++i;
+            if(i >= json.size()) {
+                hUtils::text.clearAll();
+                hUtils::bar.setBar("Loading items (Done)", json.size(), json.size());
+                hUtils::Sleep(500);
             }
-            // item bonuses.
-            item.increase_HP  = e.value("increase_HP" , 0);
-            item.increase_DMG = e.value("increase_DMG", 0);
-            item.base_damage  = e.value("base_damage" , 0);
-            item.health_bonus = e.value("health_bonus", 0);
-            item.damage_bonus = e.value("damage_bonus", 0);
-            item.resist_bonus = e.value("resist_bonus", 0);
-            item.dodge_bonus  = e.value("dodge_bonus" , 0);
-
-            itemDatabase[item.id] = item;
         }
         return true;
     }
@@ -183,7 +194,7 @@ public:
      * @param id The ID of the item to find.
      * @return An optional containing the Item if found, or std::nullopt if not found.
      */
-    std::optional<Item> find(const std::string& id) const {
+    std::optional<Item> find(const std::string &id) const {
         auto cartesian = itemDatabase.find(id);
         if(cartesian != itemDatabase.end()) return cartesian->second;
         return std::nullopt;

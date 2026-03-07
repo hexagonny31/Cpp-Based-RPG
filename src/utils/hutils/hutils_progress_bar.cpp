@@ -8,7 +8,7 @@ constexpr int BAR_LENGTH = 40;
 namespace hUtils {
     Bar bar;
     
-    void Bar::printBar(double value, double maxPoints, int filledColor, int emptyColor)
+    void Bar::printBar(std::string label, double value, double maxPoints, int filledColor, int emptyColor)
     {
         double percentage = value / maxPoints;
         int filled = static_cast<int>(percentage * BAR_LENGTH);
@@ -26,6 +26,7 @@ namespace hUtils {
         int padding = (appliedScreenWidth - BAR_LENGTH) / 2;
         if (padding < 0) padding = 0;
 
+        std::cout << std::string(padding, ' ') << label << ": \n";
         std::cout << std::string(padding, ' ') << bar << '\n';
 
         std::string percentageString = hUtils::text.toString(percentage * 100, 2) + "/100.00 % (" +
@@ -35,10 +36,10 @@ namespace hUtils {
         hUtils::text.toCentered(percentageString);
     }
 
-    void Bar::setBar(double value, double maxPoints, int filledColor, int emptyColor)
+    void Bar::setBar(std::string label, double value, double maxPoints, int filledColor, int emptyColor)
     {
         value = std::clamp(value, 0.0, maxPoints);
-        printBar(value, maxPoints, filledColor, emptyColor);
-        hUtils::Sleep(200);
+        printBar(label, value, maxPoints, filledColor, emptyColor);
+        hUtils::Sleep(10);
     }
 }

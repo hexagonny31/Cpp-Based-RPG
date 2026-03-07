@@ -88,7 +88,7 @@ namespace hUtils {
         HUTIL_API void clearAll          (int delay = 0);           //  Clears every output in the terminal.
         HUTIL_API void clearBelow        (int line);                //  Clears an assigned line below it.
         HUTIL_API void clearAbove        (int line,                 //  Clears an assigned line above it.
-                                          bool clrBaseIdx = false);
+                                          bool clrBaseIdx = true);
     };
 
     struct Table {
@@ -126,15 +126,17 @@ namespace hUtils {
 
     struct Bar {
     private:
-        void printBar(double value,
+        void printBar(std::string label,
+                      double value,
                       double maxPoints,
                       int filledColor = 255,
                       int emptyColor  = 237);
     public:
-        HUTIL_API void setBar  (double value,
-                                double maxPoints,
-                                int filledColor = 252,
-                                int emptyColor  = 237);
+        HUTIL_API void setBar(std::string label,
+                              double value,
+                              double maxPoints,
+                              int filledColor = 252,
+                              int emptyColor  = 237);
     };
     
     extern Text   text;
