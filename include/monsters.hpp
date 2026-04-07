@@ -41,8 +41,12 @@ public:
                 if(!e.contains("name")) monster.setName(e["id"].get<std::string>());
                 else monster.setName(e["name"].get<std::string>());
 
+                monster.setXP(e["xp_reward"].get<unsigned int>());
+                const auto &gp = e["gold_reward"];
+                monster.setGold({gp[0], gp[1]});
+
                 if(e.contains("attribute") && e["attribute"].is_object()) {
-                    const auto& a = e["attribute"];
+                    const auto &a = e["attribute"];
                     monster.setVigor(a.value("vigor", 0));
                     monster.setStrength(a.value("strength", 0));
                     monster.setEndurance(a.value("endurance", 0));

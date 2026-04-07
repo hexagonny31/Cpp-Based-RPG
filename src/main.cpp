@@ -23,6 +23,14 @@ int main() {
     }
     std::string FILE_NAME;
 
+    Monster monster;
+    auto init = MonsterDatabase::instance().find("slime");
+    if(init) {
+        std::cout << "min: " << monster.getGold().first << '\n';
+        std::cout << "max: " << monster.getGold().second << '\n';
+        hUtils::Pause();
+    }
+
     //  create/select progress.
     Player player;
     char c;

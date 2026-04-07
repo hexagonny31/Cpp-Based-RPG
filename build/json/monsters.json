@@ -3,24 +3,6 @@
         "id": "target_dummy",
         "df_hp": 9999,
         "df_mp": 1,
-        "attribute": [
-            0,
-            0,
-            0,
-            0,
-            0
-        ],
-        "loot": [
-            { "id": "unusable", "weight": 0.1 },
-            { "id": "unusable", "weight": 0.1 }
-        ],
-        "min_gold": 0,
-        "max_gold": 0
-    },
-    {
-        "id": "slime",
-        "df_hp": 15,
-        "df_mp": 1,
         "attribute": {
             "vigor": 0,
             "strength": 0,
@@ -29,10 +11,26 @@
             "dexterity": 0
         },
         "loot": [
-            { "id": "unusable", "weight": 0.1 },
             { "id": "unusable", "weight": 0.1 }
         ],
-        "min_gold": 3,
-        "max_gold": 20
+        "xp_reward": 0,
+        "gold_reward": [0,0]
+    },
+    {
+        "id": "slime",
+        "df_hp": 15,
+        "df_mp": 1,
+        "attribute": {
+            "vigor": 0,
+            "strength": 0,
+            "endurance": 20,
+            "intelligence": 0,
+            "dexterity": 15
+        },
+        "loot": [
+            { "id": "slime_goo", "weight": 0.1 }
+        ],
+        "xp_reward": 0,
+        "gold_reward": [0,0]
     }
 ]

@@ -8,6 +8,7 @@
 #include <ctime>
 #include <vector>
 #include <algorithm>
+#include <utility>
 
 struct Entity {
 protected:
@@ -194,20 +195,23 @@ private:
     std::string id = "";
     int lvl        = 1;
     int xp_reward  = 0;
+    std::pair<int,int> gold_reward = {0,0};
     LootTable loot;
 
 public:
     Monster() : loot({{"Nothing", 1.0}}) {}
 
-    std::string getID()        const { return id; }
-    int         getLvl()       const { return lvl; }
-    int         getXP()        const { return xp_reward; }
-    LootTable   getLootTable() const { return loot; }
+    std::string        getID()        const { return id; }
+    int                getLvl()       const { return lvl; }
+    int                getXP()        const { return xp_reward; }
+    std::pair<int,int> getGold()      const { return gold_reward; }
+    LootTable          getLootTable() const { return loot; }
 
-    void setID       (const std::string new_id) { id = new_id; }
-    void setLvl      (const int new_lvl)        { lvl = new_lvl; }
-    void setXP       (const int new_xp_reward)  { xp_reward = new_xp_reward; }
-    void setLootTable(const LootTable new_loot) { loot = std::move(new_loot); }
+    void setID       (const std::string new_id)                 { id = new_id; }
+    void setLvl      (const int new_lvl)                        { lvl = new_lvl; }
+    void setXP       (const int new_xp_reward)                  { xp_reward = new_xp_reward; }
+    void setGold     (const std::pair<int,int> new_gold_reward) { gold_reward = std::move(new_gold_reward); }
+    void setLootTable(const LootTable new_loot)                 { loot = std::move(new_loot); }
 };
 
 #endif
