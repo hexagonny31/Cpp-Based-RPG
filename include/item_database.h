@@ -1,22 +1,18 @@
-#pragma once
+#ifndef ITEM_DATABASE_H
+#define ITEM_DATABASE_H
 
-#include "hutils.h"
 #include "common.h"
-#include "json.hpp"
-
 #include <string>
-#include <fstream>
-#include <optional>
 #include <random>
 #include <unordered_map>
-#include <utility>
-
-using nj = nlohmann::json;
+#include <optional>
 
 // Properties struct representing the equip type and requirements of an item.
 struct Properties {
+    bool          stackable      = false;                // Indicates if the item can be stacked.
     bool          sellable       = true;                 // Indicates if the item can be sold.
     bool          consumable     = false;                // Indicates if the item is consumed on use (e.g., potions).
+    int           max_stack      = 99;                   // Determines on how much item clump or stack to one slot.
     EquipType     equip_type     = EquipType::None;      // Defines the type of equipment (e.g., weapon, armor).
     WeaponRequire weapon_require = WeaponRequire::None;  // For weapons, indicates if it's one-handed or two-handed.
     ArmorType     armor_type     = ArmorType::None;      // For armor, indicates if it's light, medium, heavy, etc.
@@ -26,7 +22,7 @@ struct Properties {
 struct Item {
     std::string name;
     std::string id;
-    bool equipped   = false;
+    bool equipped = false;
 
     Attributes attribute{};
     Properties property{};
@@ -66,27 +62,14 @@ public:
      * If the resulting list is empty, dist ramins default-constructed
      * and dropItem() will cause undefined behavior.
      */
-    LootTable(std::vector<std::pair<std::string, double>> list)
-        : item_ids(), weights(), gen(std::random_device{}())
-    {
-        item_ids.reserve(list.size());
-        weights.reserve(list.size());
-        
-        for(const auto& [item, weight] : list) {
-            if(weight <= 0) continue;
-            item_ids.push_back(item);
-            weights.push_back(weight);
-        }
-        if(!weights.empty())
-            dist = std::discrete_distribution<size_t>(weights.begin(), weights.end());
-    };
+    LootTable(std::vector<std::pair<std::string, double>> list);
 
     /**
      * @brief Randomly selects an item ID based on the weights.
      * @return A randomly selected item ID from the loot table.
      * @warning Undefined behavior if the loot table is empty (no items with weight > 0).
      */
-    std::string dropItem() { return item_ids[dist(gen)]; }
+    std::string dropItem();
 
     /**
      * @brief Drops multiple items based on the loot table.
@@ -94,11 +77,7 @@ public:
      * @return A vector of randomly selected item IDs from the loot table.
      * @warning Undefined behavior if the loot table is empty (no items with weight > 0).
      */
-    std::vector<std::string> dropItem(const size_t x) {
-        std::vector<std::string> it;
-        for(size_t i = 0; i < x; ++i) it.push_back(dropItem());
-        return it;
-    }
+    std::vector<std::string> dropItem(const size_t x);
 };
 
 /**
@@ -123,80 +102,20 @@ public:
      * @brief Returns the single global instance (Meyers singleton).
      * @return Reference to the ItemDatabase.
      */
-    static ItemDatabase &instance() {
-        static ItemDatabase db;
-        return db;
-    }
+    static ItemDatabase &instance();
 
     /**
      * @brief Loads items from a JSON file into the item database.
      * @param FILE_NAME The path to the JSON file containing item data.
      * @return true if loading was successful, false otherwise.
      */
-    bool load(const std::string &FILE_NAME = "json/items.json") {
-        std::ifstream file(FILE_NAME);
-        if(!file.is_open()) return false;
-
-        nj json;
-        try {
-            file >> json;
-        } catch(const nj::parse_error&) {
-            return false;
-        }
-        if(!json.is_array()) return false;
-
-        itemDatabase.clear();
-        int i = 0;
-        for(const auto &e : json) {
-            hUtils::text.clearAll();
-            if(e.contains("name") && e.contains("id")) {
-                Item item;
-                item.id   = e["id"].get<std::string>();
-                item.name = e["name"].get<std::string>();
-
-                if(e.contains("attribute") && e["attribute"].is_object()) {
-                    const auto& a = e["attribute"];
-                    item.attribute.vigor        = a.value("vigor", 0);
-                    item.attribute.strength     = a.value("strength", 0);
-                    item.attribute.endurance    = a.value("endurance", 0);
-                    item.attribute.intelligence = a.value("intelligence", 0);
-                    item.attribute.dexterity    = a.value("dexterity", 0);
-                }
-                if(e.contains("properties") && e["properties"].is_object()) {
-                    const auto& p  = e["properties"];
-                    item.property.armor_type     = (ArmorType)p.value("armor_type", 0);
-                    item.property.equip_type     = (EquipType)p.value("equip_type", 0);
-                    item.property.weapon_require = (WeaponRequire)p.value("weapon_require", 0);
-                }
-                // item bonuses.
-                item.increase_HP  = e.value("increase_HP" , 0);
-                item.increase_DMG = e.value("increase_DMG", 0);
-                item.base_damage  = e.value("base_damage" , 0);
-                item.health_bonus = e.value("health_bonus", 0);
-                item.damage_bonus = e.value("damage_bonus", 0);
-                item.resist_bonus = e.value("resist_bonus", 0);
-                item.dodge_bonus  = e.value("dodge_bonus" , 0);
-
-                itemDatabase[item.id] = item;
-            }
-            hUtils::bar.setBar("Loading items", i, json.size());
-            ++i;
-            if(i >= json.size()) {
-                hUtils::text.clearAll();
-                hUtils::bar.setBar("Loading items (Done)", json.size(), json.size());
-                hUtils::Sleep(500);
-            }
-        }
-        return true;
-    }
+    bool load(const std::string &FILE_NAME = "json/items.json");
     /**
      * @brief Looks up an item by its ID in the item database.
      * @param id The ID of the item to find.
      * @return An optional containing the Item if found, or std::nullopt if not found.
      */
-    std::optional<Item> find(const std::string &id) const {
-        auto cartesian = itemDatabase.find(id);
-        if(cartesian != itemDatabase.end()) return cartesian->second;
-        return std::nullopt;
-    }
+    std::optional<Item> find(const std::string &id) const;
 };
+
+#endif

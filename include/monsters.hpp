@@ -3,8 +3,10 @@
 #include "hutils.h"
 #include "entity.h"
 #include "common.h"
-#include "item_database.hpp"
+#include "item_database.h"
 #include "json.hpp"
+
+#include <fstream>
 
 namespace fs = std::filesystem;
 using nj = nlohmann::json;
@@ -43,7 +45,7 @@ public:
 
                 monster.setXP(e["xp_reward"].get<unsigned int>());
                 const auto &gp = e["gold_reward"];
-                monster.setGold({gp[0], gp[1]});
+                monster.setGold({gp[0].get<int>(), gp[1].get<int>()});
 
                 if(e.contains("attribute") && e["attribute"].is_object()) {
                     const auto &a = e["attribute"];

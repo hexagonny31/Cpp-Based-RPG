@@ -1,7 +1,7 @@
 #pragma once
 
 #include "hutils.h"
-#include "item_database.hpp"
+#include "item_database.h"
 #include "save_manager.h"
 
 #include <iostream>

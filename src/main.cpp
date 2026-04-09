@@ -1,4 +1,4 @@
-#include "item_database.hpp"
+#include "item_database.h"
 #include "menus.hpp"
 #include "save_manager.h"
 #include "monsters.hpp"
@@ -22,14 +22,6 @@ int main() {
         return -1;
     }
     std::string FILE_NAME;
-
-    Monster monster;
-    auto init = MonsterDatabase::instance().find("slime");
-    if(init) {
-        std::cout << "min: " << monster.getGold().first << '\n';
-        std::cout << "max: " << monster.getGold().second << '\n';
-        hUtils::Pause();
-    }
 
     //  create/select progress.
     Player player;

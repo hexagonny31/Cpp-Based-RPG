@@ -1,15 +1,17 @@
 #include "hutils.h"
 #include "save_manager.h"
-#include "item_database.hpp"
+#include "item_database.h"
 #include "entity.h"
+#include "json.hpp"
 
-#include <iostream>
 #include <unordered_map>
 #include <filesystem>
+#include <fstream>
 #include <stdexcept>
 
 using namespace std::string_literals;
 namespace fs = std::filesystem;
+using nj = nlohmann::json;
 
 Player newCharacterSave() {
     hUtils::text.clearAll();

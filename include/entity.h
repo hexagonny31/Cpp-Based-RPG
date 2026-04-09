@@ -1,7 +1,7 @@
 #ifndef ENTITYOBJECT_H
 #define ENTITYOBJECT_H
 
-#include "item_database.hpp"
+#include "item_database.h"
 
 #include <iostream>
 #include <cstdlib>

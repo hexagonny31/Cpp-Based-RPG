@@ -31,6 +31,6 @@
             { "id": "slime_goo", "weight": 0.1 }
         ],
         "xp_reward": 0,
-        "gold_reward": [0,0]
+        "gold_reward": [0,5]
     }
 ]
