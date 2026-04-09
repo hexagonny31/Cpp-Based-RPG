@@ -1,6 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <cstddef>
+
 struct Attributes  // factors that scales the entity's stats
 {
     int vigor        = 0; // increases health points & mana points

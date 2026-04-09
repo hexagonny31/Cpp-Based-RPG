@@ -3,6 +3,7 @@
 #include "hutils.h"
 #include "item_database.h"
 #include "save_manager.h"
+#include "player.h"
 
 #include <iostream>
 #include <vector>
@@ -120,41 +121,6 @@ bool unEquip(Player &player) {
     }
 }
 
-bool Player::setAttribute() {
-    if(allocation_pts <= 0) return false;
-    while(true) {
-        char c = '\0';
-        hUtils::text.clearAll(500);
-        std::cout << "Choose an attribute to increase:\n";
-        hUtils::table.setElements(
-            " [1] Vigor",     " [4] Intelligence",
-            " [2] Strength",  " [5] Dexterity",
-            " [3] Endurance", " [E] Cancel"
-        );
-        hUtils::table.toColumn("left", 16, 2);
-        c = hUtils::GetInputKeymap({'1','2','3','4','5','E'});
-        
-        if(c == 'E') return false;
-
-        int allocation = hUtils::GetIntegerInput(
-            "How many points would you like to allocate? (avail: "
-            + std::to_string(allocation_pts) + ")\n", 
-            1, allocation_pts);
-
-        switch(c) {
-        case '1':    attribute.vigor        += allocation; break;
-        case '2':    attribute.strength     += allocation; break;
-        case '3':    attribute.endurance    += allocation; break;
-        case '4':    attribute.intelligence += allocation; break;
-        case '5':    attribute.dexterity    += allocation; break;
-        default:     continue;
-        }
-        allocation_pts -= allocation;
-        std::cout << "Points allocated!\n";
-        return true;
-    }
-}
-
 void statistics(Player &player) {
     while(true) {
         char c ='\0';
@@ -172,12 +138,13 @@ void statistics(Player &player) {
                 << "  Chestplate: " << player.getEquipmentName(Slot::Chestplate) << '\n'
                 << "  Boots:      " << player.getEquipmentName(Slot::Boots)      << '\n';
         hUtils::text.toLine();
+        const Attributes &attribute = player.getAttributes();
         std::cout << std::setprecision(2) << "Attributes:\n"
-                << "  Vigor:        " << player.getVigor()       << " (" << player.getTotalHealth(true)        << ")\n"
-                << "  Strength:     " << player.getStrength()    << " (" << player.getDamage(true)*100         << "%)\n"
-                << "  Endurance:    " << player.getEndurance()   << " (" << player.getPhysicalResist(true)*100 << "%)\n"
-                << "  Intelligence: " << player.getIntelligence()<< " (" << player.getTotalMana(true)          << ")\n"
-                << "  Dexterity:    " << player.getDexterity()   << " (" << player.getDodgeChance(true)*100    << "%)\n";
+                << "  Vigor:        " << attribute.vigor        << " (" << player.getTotalHealth(true)        << ")\n"
+                << "  Strength:     " << attribute.strength     << " (" << player.getDamage(true)*100         << "%)\n"
+                << "  Endurance:    " << attribute.endurance    << " (" << player.getPhysicalResist(true)*100 << "%)\n"
+                << "  Intelligence: " << attribute.intelligence << " (" << player.getTotalMana(true)          << ")\n"
+                << "  Dexterity:    " << attribute.dexterity    << " (" << player.getDodgeChance(true)*100    << "%)\n";
         hUtils::text.toLine();
         std::cout << "[Q] Allocate | [A] Equip | [S] Unequip | [E] Exit\n";
 

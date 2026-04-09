@@ -4,6 +4,7 @@
 #include "entity.h"
 #include "json.hpp"
 
+#include <iostream>
 #include <unordered_map>
 #include <filesystem>
 #include <fstream>
@@ -114,11 +115,12 @@ void saveToFile(const Player &player) {
     json["current_health"] = player.getCurrentHealth();
     json["current_mana"]   = player.getCurrentMana();
 
-    json["attribute"]["vigor"]        = player.getVigor();
-    json["attribute"]["strength"]     = player.getStrength();
-    json["attribute"]["endurance"]    = player.getEndurance();
-    json["attribute"]["intelligence"] = player.getIntelligence();
-    json["attribute"]["dexterity"]    = player.getDexterity();
+    const Attributes &attribute = player.getAttributes();
+    json["attribute"]["vigor"]        = attribute.vigor;
+    json["attribute"]["strength"]     = attribute.strength;
+    json["attribute"]["endurance"]    = attribute.endurance;
+    json["attribute"]["intelligence"] = attribute.intelligence;
+    json["attribute"]["dexterity"]    = attribute.dexterity;
 
     json["equipment"] = nj::array();
     for(const auto &item : player.getEquipment()) {
@@ -175,11 +177,15 @@ Player loadToFile() {
 
     if(json.contains("attribute") && json["attribute"].is_object()) {
         auto attr = json["attribute"];
-        loaded_player.setVigor(attr.value("vigor", 0));
-        loaded_player.setStrength(attr.value("strength", 0));
-        loaded_player.setEndurance(attr.value("endurance", 0));
-        loaded_player.setIntelligence(attr.value("intelligence", 0));
-        loaded_player.setDexterity(attr.value("dexterity", 0));
+        Attributes attribute{};
+
+        attribute.vigor        = attr.value("vigor", 0);
+        attribute.strength     = attr.value("strength", 0);
+        attribute.endurance    = attr.value("endurance", 0);
+        attribute.intelligence = attr.value("intelligence", 0);
+        attribute.dexterity    = attr.value("dexterity", 0);
+
+        loaded_player.setAttributes(std::move(attribute));
     }
     std::unordered_map<std::string, int> lookup;
     if(json.contains("inventory") && json["inventory"].is_array()) {

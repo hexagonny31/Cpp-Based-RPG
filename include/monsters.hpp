@@ -1,12 +1,12 @@
 #pragma once
 
 #include "hutils.h"
-#include "entity.h"
-#include "common.h"
+#include "monster.h"
 #include "item_database.h"
 #include "json.hpp"
 
 #include <fstream>
+#include <algorithm>
 
 namespace fs = std::filesystem;
 using nj = nlohmann::json;
@@ -48,12 +48,16 @@ public:
                 monster.setGold({gp[0].get<int>(), gp[1].get<int>()});
 
                 if(e.contains("attribute") && e["attribute"].is_object()) {
-                    const auto &a = e["attribute"];
-                    monster.setVigor(a.value("vigor", 0));
-                    monster.setStrength(a.value("strength", 0));
-                    monster.setEndurance(a.value("endurance", 0));
-                    monster.setIntelligence(a.value("intelligence", 0));
-                    monster.setDexterity(a.value("dexterity", 0));
+                    const auto& a = e["attribute"];
+                    Attributes attr{};
+
+                    attr.vigor        = a.value("vigor",        0);
+                    attr.strength     = a.value("strength",     0);
+                    attr.endurance    = a.value("endurance",    0);
+                    attr.intelligence = a.value("intelligence", 0);
+                    attr.dexterity    = a.value("dexterity",    0);
+
+                    monster.setAttributes(std::move(attr));
                 }
                 if(e.contains("loot") && e["loot"].is_object()) {
                     std::vector<std::pair<std::string, double>> list;

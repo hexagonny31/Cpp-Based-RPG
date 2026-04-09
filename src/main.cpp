@@ -2,6 +2,8 @@
 #include "menus.hpp"
 #include "save_manager.h"
 #include "monsters.hpp"
+#include "monster.h"
+#include "player.h"
 
 #include <iostream>
 
@@ -21,7 +23,6 @@ int main() {
         hUtils::Pause();
         return -1;
     }
-    std::string FILE_NAME;
 
     //  create/select progress.
     Player player;

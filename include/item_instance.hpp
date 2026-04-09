@@ -20,36 +20,38 @@ struct ItemInstance {
 
     ItemInstance(const std::string& item_id, int qty = 1)
     {
-        auto opt = ItemDatabase::instance().find(item_id);
-        if (opt) {
-            *this = ItemInstance(&*opt, qty);   // &*opt gets pointer from optional
-        }
+        auto init = ItemDatabase::instance().find(item_id);
+        if (init) *this = ItemInstance(&*init, qty);
     }
 
-    const Item&        getItem()       const { return *item; }
-    const std::string& getName()       const { return item ? item->name : ""; }
-    const Properties&  getProperties() const { return item ? item->property : Properties{}; }
+    const Item        &getItem()       const { return *item; }
+    const std::string &getName()       const { return item ? item->name : ""; }
+    const Properties  &getProperties() const { return item ? item->property : Properties{}; }
 
-    bool isStackable() const {
+    bool isStackable() const
+    {
         return item && item->property.stackable && item->property.max_stack > 1;
     }
 
-    int maxStackSize() const {
+    int maxStackSize() const
+    {
         return item ? item->property.max_stack : 1;
     }
 
-    int add(int amount) {
+    int add(int amount)
+    {
         if (!isStackable()) return 0;
         int space = maxStackSize() - quantity;
-        int added = std::min(amount, std::max(0, space));
+        int added = (std::min)(amount, (std::max)(0, space));
         quantity += added;
         return added;
     }
 
-    ItemInstance split(int amount) {
-        if (!item || amount <= 0 || amount >= quantity) return {};
-        ItemInstance newStack(item, amount);
-        quantity -= amount;
-        return newStack;
-    }
+    // ItemInstance split(int amount)
+    // {
+    //     if (!item || amount <= 0 || amount >= quantity) return {};
+    //     ItemInstance newStack(item, amount);
+    //     quantity -= amount;
+    //     return newStack;
+    // }
 };

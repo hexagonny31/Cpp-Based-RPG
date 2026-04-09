@@ -39,7 +39,7 @@ ItemDatabase &ItemDatabase::instance()
     return db;
 }
 
-bool ItemDatabase::load(const std::string &FILE_NAME = "json/items.json")
+bool ItemDatabase::load(const std::string &FILE_NAME)
 {
     std::ifstream file(FILE_NAME);
     if(!file.is_open()) return false;

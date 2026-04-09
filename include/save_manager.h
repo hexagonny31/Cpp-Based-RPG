@@ -1,7 +1,7 @@
 #ifndef SAVE_MANAGER_H
 #define SAVE_MANAGER_H
 
-#include "entity.h"
+#include "player.h"
 
 #include <optional>
 #include <stdexcept>

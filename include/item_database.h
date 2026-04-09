@@ -2,13 +2,15 @@
 #define ITEM_DATABASE_H
 
 #include "common.h"
+
 #include <string>
 #include <random>
 #include <unordered_map>
 #include <optional>
 
 // Properties struct representing the equip type and requirements of an item.
-struct Properties {
+struct Properties
+{
     bool          stackable      = false;                // Indicates if the item can be stacked.
     bool          sellable       = true;                 // Indicates if the item can be sold.
     bool          consumable     = false;                // Indicates if the item is consumed on use (e.g., potions).
@@ -19,7 +21,8 @@ struct Properties {
 };
 
 // Item struct representing equippable items in the game.
-struct Item {
+struct Item
+{
     std::string name;
     std::string id;
     bool equipped = false;
@@ -47,7 +50,8 @@ struct Item {
  *  Items are identified only by IDs (which should match keys in ItemDatabase).
  *  Each entry has an associated POSITIVE weight that determines its relative probability.
  */
-struct LootTable {
+struct LootTable
+{
 private:
     std::vector<std::string> item_ids;
     std::vector<double> weights;
@@ -89,7 +93,8 @@ public:
  * The load() function reads the JSON file and populates the item database,
  * while the find() function allows retrieval of items by their ID.
  */
-struct ItemDatabase {
+struct ItemDatabase
+{
 private:
     ItemDatabase() = default;
     /**
