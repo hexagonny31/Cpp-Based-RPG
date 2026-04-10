@@ -37,32 +37,49 @@ void Player::setAllocation(int newAllocation)
 bool Player::setAttribute()
 {
     if(allocation_pts <= 0) return false;
+
     while(true) {
-        char c = '\0';
-        hUtils::text.clearAll(500);
-        std::cout << "Choose an attribute to increase:\n";
-        hUtils::table.setElements(
-            " [1] Vigor",     " [4] Intelligence",
-            " [2] Strength",  " [5] Dexterity",
-            " [3] Endurance", " [E] Cancel"
-        );
-        hUtils::table.toColumn("left", 16, 2);
-        c = hUtils::GetInputKeymap({'1','2','3','4','5','E'});
-        
-        if(c == 'E') return false;
+        int pos = 0;
+        int sel = 0;
+        while(true) {
+            hUtils::text.clearAll(15);
+            std::string opt[6] = {"Vigor","Strength","Endurance","Intelligence","Dexterity"};
+            std::cout << "Choose an attribute to increase:\n";
+            for(size_t i(0); i != 5; ++i) {
+                if(i == pos)
+                    std::cout << hUtils::text.bgColor(45) << (int)i+1 << ". " << opt[i] << hUtils::text.defaultText() << '\n';
+                else std::cout << (int)i+1 << ". " << opt[i] << '\n';
+            }
+            char c = hUtils::GetInputKeymap({'W', 'S', 'E', '\x0D'});
+            if(c == 'E') return false;
+
+            switch(c) {
+            case 'W':
+                if(!(pos - 1 < 0)) --pos;
+                continue;
+            case 'S':
+                if(!(pos + 1 >= 6)) ++pos;
+                continue;
+            case '\x0D':
+                sel = pos;
+                break;
+            default:
+                continue;
+            }
+            break;
+        }
 
         int allocation = hUtils::GetIntegerInput(
             "How many points would you like to allocate? (avail: "
             + std::to_string(allocation_pts) + ")\n", 
             1, allocation_pts);
 
-        switch(c) {
+        switch(sel) {
         case '1': attribute.vigor        += allocation; break;
         case '2': attribute.strength     += allocation; break;
         case '3': attribute.endurance    += allocation; break;
         case '4': attribute.intelligence += allocation; break;
         case '5': attribute.dexterity    += allocation; break;
-        default:     continue;
         }
         allocation_pts -= allocation;
         std::cout << "Points allocated!\n";

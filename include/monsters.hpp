@@ -51,11 +51,11 @@ public:
                     const auto& a = e["attribute"];
                     Attributes attr{};
 
-                    attr.vigor        = a.value("vigor",        0);
-                    attr.strength     = a.value("strength",     0);
-                    attr.endurance    = a.value("endurance",    0);
+                    attr.vigor        = a.value("vigor", 0);
+                    attr.strength     = a.value("strength", 0);
+                    attr.endurance    = a.value("endurance", 0);
                     attr.intelligence = a.value("intelligence", 0);
-                    attr.dexterity    = a.value("dexterity",    0);
+                    attr.dexterity    = a.value("dexterity", 0);
 
                     monster.setAttributes(std::move(attr));
                 }
@@ -72,7 +72,7 @@ public:
                             if(weight <= 0) continue;
 
                             list.emplace_back(id, weight);
-                        };
+                        }
                     }
                     LootTable lt{std::move(list)};
                     monster.setLootTable(lt);
