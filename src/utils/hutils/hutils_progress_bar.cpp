@@ -8,7 +8,7 @@ constexpr int BAR_LENGTH = 40;
 namespace hUtils {
     Bar bar;
     
-    void Bar::printBar(std::string label, double value, double maxPoints, int filledColor, int emptyColor)
+    void Bar::printBar(std::string label, double value, double maxPoints, int filledColor, int emptyColor, bool obfuscate)
     {
         double percentage = value / maxPoints;
         int filled = static_cast<int>(percentage * BAR_LENGTH);
@@ -29,17 +29,23 @@ namespace hUtils {
         std::cout << std::string(padding, ' ') << label << ": \n";
         std::cout << std::string(padding, ' ') << bar << '\n';
 
-        std::string percentageString = hUtils::text.toString(percentage * 100, 2) + "/100.00 % (" +
-                                       hUtils::text.toString(value, 2) + "/" +
-                                       hUtils::text.toString(maxPoints, 2) + ")";
+        std::string percentageString;
+
+        if(obfuscate) {
+            percentageString = "??.? % (?/?)";
+        } else {
+            percentageString = hUtils::text.toString(percentage * 100, 2) + "/100.00 % (" +
+                               hUtils::text.toString(value, 2) + "/" +
+                               hUtils::text.toString(maxPoints, 2) + ")";
+        }
 
         hUtils::text.toCentered(percentageString);
     }
 
-    void Bar::setBar(std::string label, double value, double maxPoints, int filledColor, int emptyColor)
+    void Bar::setBar(std::string label, double value, double maxPoints, int filledColor, int emptyColor, bool obfuscate)
     {
         value = std::clamp(value, 0.0, maxPoints);
-        printBar(label, value, maxPoints, filledColor, emptyColor);
+        printBar(label, value, maxPoints, filledColor, emptyColor, obfuscate);
         hUtils::Sleep(10);
     }
 }

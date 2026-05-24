@@ -130,13 +130,15 @@ namespace hUtils {
                       double value,
                       double maxPoints,
                       int filledColor = 255,
-                      int emptyColor  = 237);
+                      int emptyColor  = 237,
+                      bool obfuscate  = false);
     public:
         HUTIL_API void setBar(std::string label,
                               double value,
                               double maxPoints,
                               int filledColor = 252,
-                              int emptyColor  = 237);
+                              int emptyColor  = 237,
+                              bool obfuscate  = false);
     };
     
     extern Text   text;
