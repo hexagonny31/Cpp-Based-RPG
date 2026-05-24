@@ -27,6 +27,7 @@ public:
     bool setAttribute();
 
     bool addToInventory(const std::string& id);
+    bool addToInventory(const std::vector<std::string>& ids);
     void equipItem(Item* item, Slot slot);
     void unequipItem(Slot slot);
 };

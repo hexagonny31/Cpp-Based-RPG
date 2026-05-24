@@ -192,7 +192,7 @@ Player loadToFile() {
         int i = 0;
         for(const auto &item_name : json["inventory"]) {
             if(!item_name.is_string()) continue;
-            loaded_player.addToInventory(item_name);
+            loaded_player.addToInventory(item_name.get<std::string>());
             lookup[item_name.get<std::string>()] = i;
             ++i;
         }

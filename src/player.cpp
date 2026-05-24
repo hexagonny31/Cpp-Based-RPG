@@ -95,6 +95,13 @@ bool Player::addToInventory(const std::string& id)
     return true;
 }
 
+bool Player::addToInventory(const std::vector<std::string>& ids)
+{
+    bool added = false;
+    for(const std::string& id : ids) if(addToInventory(id)) added = true;
+    return added;
+}
+
 void Player::equipItem(Item* item, Slot slot)
 {
     if(!item || item->property.equip_type == EquipType::None) return;
