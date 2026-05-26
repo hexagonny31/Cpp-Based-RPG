@@ -32,6 +32,12 @@ enum class EquipType {
     Chestplate,
     Boots,
 };
+//  identifier for base damage type.
+enum class DamageType {
+    None,
+    Physical,
+    Magical
+};
 //  identifier for weapons equip requirement.
 enum class WeaponRequire {
     None,

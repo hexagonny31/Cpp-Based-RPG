@@ -72,6 +72,7 @@ bool ItemDatabase::load(const std::string &FILE_NAME)
             if(e.contains("properties") && e["properties"].is_object()) {
                 const auto& p  = e["properties"];
                 item.property.armor_type     = (ArmorType)p.value("armor_type", 0);
+                item.property.damage_type    = (DamageType)p.value("damage_type", 0);
                 item.property.equip_type     = (EquipType)p.value("equip_type", 0);
                 item.property.weapon_require = (WeaponRequire)p.value("weapon_require", 0);
             }

@@ -5,6 +5,7 @@
         "properties": {
             "sellable": true,
             "equip_type": 1,
+            "damage_type": 1,
             "weapon_require": 2
         },
         "base_damage": 28,
@@ -21,6 +22,7 @@
         "properties": {
             "sellable": true,
             "equip_type": 1,
+            "damage_type": 1,
             "weapon_require": 1
         },
         "base_damage": 23.5,
@@ -35,6 +37,7 @@
         "properties": {
             "sellable": true,
             "equip_type": 1,
+            "damage_type": 1,
             "weapon_require": 1
         },
         "base_damage": 15.87,
@@ -50,6 +53,7 @@
         "properties": {
             "sellable": true,
             "equip_type": 1,
+            "damage_type": 1,
             "weapon_require": 2
         },
         "base_damage": 26.25,
@@ -66,6 +70,7 @@
         "properties": {
             "sellable": true,
             "equip_type": 1,
+            "damage_type": 1,
             "weapon_require": 2
         },
         "base_damage": 35,
@@ -82,6 +87,7 @@
         "properties": {
             "sellable": true,
             "equip_type": 1,
+            "damage_type": 1,
             "weapon_require": 2
         },
         "base_damage": 36.31,
@@ -98,6 +104,7 @@
         "properties": {
             "sellable": true,
             "equip_type": 1,
+            "damage_type": 1,
             "weapon_require": 1
         },
         "attribute": {
@@ -113,6 +120,7 @@
         "properties": {
             "sellable": true,
             "equip_type": 1,
+            "damage_type": 2,
             "weapon_require": 1
         },
         "base_damage": 12.44,
@@ -129,6 +137,7 @@
         "properties": {
             "sellable": true,
             "equip_type": 1,
+            "damage_type": 1,
             "weapon_require": 1
         },
         "attribute": {
@@ -204,6 +213,7 @@
         "properties": {
             "sellable": true,
             "equip_type": 1,
+            "damage_type": 1,
             "weapon_require": 1
         }
     },
@@ -213,6 +223,7 @@
         "properties": {
             "sellable": true,
             "equip_type": 1,
+            "damage_type": 1,
             "weapon_require": 1
         }
     },
@@ -222,6 +233,7 @@
         "properties": {
             "sellable": false,
             "equip_type": 1,
+            "damage_type": 1,
             "weapon_require": 1
         },
         "dodge_bonus": 0.1
@@ -232,6 +244,7 @@
         "properties": {
             "sellable": false,
             "equip_type": 1,
+            "damage_type": 1,
             "weapon_require": 1
         },
         "dodge_bonus": 0.1

@@ -16,6 +16,7 @@ struct Properties
     bool          consumable     = false;                // Indicates if the item is consumed on use (e.g., potions).
     int           max_stack      = 99;                   // Determines on how much item clump or stack to one slot.
     EquipType     equip_type     = EquipType::None;      // Defines the type of equipment (e.g., weapon, armor).
+    DamageType    damage_type    = DamageType::None;     // For weapons, indicates if it's physical or magical damage.
     WeaponRequire weapon_require = WeaponRequire::None;  // For weapons, indicates if it's one-handed or two-handed.
     ArmorType     armor_type     = ArmorType::None;      // For armor, indicates if it's light, medium, heavy, etc.
 };
