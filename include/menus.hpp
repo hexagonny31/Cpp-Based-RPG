@@ -4,11 +4,13 @@
 #include "item_database.h"
 #include "save_manager.h"
 #include "player.h"
+#include "monster.h"
 
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include <unordered_map>
+#include <random>
 
 bool equip(Player &player){
     struct EquipOption {
@@ -210,5 +212,127 @@ void inventory(Player &player) {
         case 'E':
             return;
         }
+    }
+}
+
+void encounter(Player &player) {
+    // all the randomizer stuff happens.
+    // battle is a bool function. which means its possible to do a re-encounter if player fails to flee. (which can be brutal)
+    auto monster = MonsterDatabase::instance().find("slime");
+    if(!monster) return;
+    if(battle(player, *monster)) std::cout << "You defeated the " << monster->getName() << "!\n";
+    else std::cout << "You were defeated by the " << monster->getName() << "...\n";
+}
+
+bool battle(Player &player, Monster &monster)
+{
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dis(0.0, 1.0);
+
+    int p_intel = player.getAttributes().intelligence;
+    int m_intel = monster.getAttributes().intelligence;
+
+    // battle intro, show monster info
+
+    // if the player has high enough intelligence, they can see the monster's level.
+    // else if the player's intelligence is more than 20% lower than the monster's intelligence, they can see the monster's level.
+    bool can_see_level = false;
+    if(p_intel >= m_intel || p_intel < m_intel * 0.8) can_see_level = true;
+
+    // seeing the monster's level can give the player an idea of how strong the monster is, since levels are directly proportional to the monster's stats. (e.g. player's can learn the approximate calculation to plan their battle strategy.)
+
+    // if the player has higher or equal intelligence than the monster, they can see the monster's exact health points, mana points.
+    bool can_see_exact_stats = (p_intel >= m_intel);
+
+    // if the player has a special equipment, they have a guaranteed chance to see the monster's attributes and stats. (it sacrifices an armor slot, but it can be a game changer.)
+    // else if the player has higher intelligence than the monster, they can have a chance to see the monster's attributes and stats.
+    // the chance can be influenced by the player's intelligence (if the player has 50% higher intelligence, it increases by 50% between base and cap), but it won't be a guaranteed win for the player. 
+    bool can_see_full_stats = false;
+    bool has_reveal_gear = false;
+    Item* equip = player.getEquipment(Slot::Helmet);
+    if(equip && equip->id == "monocle_of_true_sight") has_reveal_gear = true;
+
+    if (has_reveal_gear) {
+        can_see_full_stats = true;
+    } else if(p_intel > m_intel) {
+        double base_reveal_chance = 0.3;
+        double bonus_chance = ((double)p_intel / m_intel) - 1.0;
+        if(bonus_chance > 0.5) bonus_chance = 0.5;
+        double total_reveal_chance = base_reveal_chance + bonus_chance;
+        if(dis(gen) < total_reveal_chance) can_see_full_stats = true;
+    }
+
+    // seeing the monster's attributes and stats can give the player a huge advantage, since they can plan their battle strategy accordingly. (e.g. if the monster has high physical resist, the player can choose to use magic damage instead of physical damage.)
+
+    hUtils::text.clearAll();
+    std::cout << "You have encountered a " << monster.getID() << "!\n\n";
+
+    std::cout << "Monster: " << monster.getName();
+    if(can_see_level) std::cout << "(Lvl " << monster.getLvl() << ")";
+    else std::cout << "(Lvl ???)"; 
+    std::cout << '\n';
+
+    hUtils::bar.setBar("HP", monster.getCurrentHealth(), monster.getTotalHealth(false), 124, {}, !can_see_exact_stats);
+    hUtils::bar.setBar("MP", monster.getCurrentMana(),   monster.getTotalMana(false), {}, {}, !can_see_exact_stats);
+
+    double preemptive_chance = 0.2;
+
+    // a 20% chance to either player attack first or the monster attack first. (chance can be influenced by player's dexterity, but it won't be a guaranteed win for the player.)
+    // a 80% chance to not happen.
+    if(dis(gen) < preemptive_chance) {
+        double player_first_prob = 0.5 + player.getDodgeChance(true);
+        if(player_first_prob > 0.85) player_first_prob = 0.85;
+        
+        if(dis(gen) < player_first_prob) {
+            std::cout << "Preemptive Strike! You strike first!\n";
+            // player attacks first, calculate damage, apply to monster, check if monster is alive, if not, give rewards.
+        } else {
+            std::cout << "Ambush! The monster lunges forward!\n";
+            // monster attacks first, calculate damage, apply to player, check if player is alive, if not, game over.
+        }
+    }
+
+    // this is where player can choose to attack, use item, or flee.
+    hUtils::table.setElements(
+        " [Q] Attack",   " [W] Block",
+        " [A] Use Item", " [S] Flee"
+    );
+    hUtils::table.toColumn("left", 14, 2);
+    char c = hUtils::GetInputKeymap({'Q','W','A','S','D','E'});
+
+    // if player flees, there's a chance of failure, which can lead to a re-encounter.
+    // if player uses an item.. player looses a chance to attack.
+    // if player attacks.. calculate damage, apply to monster, check if monster is alive, if not, give rewards.
+    // if player blocks.. calculate damage reduction, apply to player, check if player is alive, if not, game over.
+    switch(std::toupper(c)) {
+    case 'Q': // attack
+        break;
+    case 'W': // block
+        break;
+    case 'A': // use item
+        break;
+    case 'S': { // flee
+        break;
+    }
+    }
+    
+    if(!monster.isAlive()) {
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dist(1, 3);
+        std::vector<std::string> rewards = monster.getLootTable().dropItem(dist(gen));
+        if(player.addToInventory(rewards)) {
+            for(const std::string& reward : rewards) std::cout << "You obtained: " << reward << '\n';
+        } else {
+            std::cout << "Your inventory is full! You couldn't pick up the rewards...\n";
+        }
+        hUtils::Sleep(2500);
+        return true;
+    } else if(!player.isAlive()) {
+        if(player.getCurrentHealth() < 0) player.setCurrentHealth(0);
+        return false;
+    } else {
+        battle(player, monster);
     }
 }
