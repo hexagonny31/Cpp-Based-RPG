@@ -133,6 +133,14 @@ void Entity::setName(const std::string& newName)
     name = newName;
 }
 
+void Entity::setDefaultVitals(const double new_df_hp, const double new_df_mp)
+{
+    df_hp = new_df_hp;
+    df_mp = new_df_mp;
+    updateHealth();
+    updateMana();
+}
+
 void Entity::setCurrentHealth(const double new_hp)       
 {
     curr_hp = new_hp;

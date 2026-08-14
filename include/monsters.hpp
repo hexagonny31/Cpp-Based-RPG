@@ -59,7 +59,7 @@ public:
 
                     monster.setAttributes(std::move(attr));
                 }
-                if(e.contains("loot") && e["loot"].is_object()) {
+                if(e.contains("loot") && e["loot"].is_array()) {
                     std::vector<std::pair<std::string, double>> list;
                     for(const auto &item : e["loot"]) {
                         if(item.is_object() &&
@@ -77,6 +77,7 @@ public:
                     LootTable lt{std::move(list)};
                     monster.setLootTable(lt);
                 }
+                if(e.contains("df_hp") && e.contains("df_mp")) monster.setDefaultVitals(e["df_hp"].get<double>(), e["df_mp"].get<double>());
                 monsterDatabase[monster.getID()] = monster;
             }
             hUtils::bar.setBar("Loading monsters", i, json.size());

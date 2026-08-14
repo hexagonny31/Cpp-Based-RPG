@@ -40,6 +40,7 @@ public:
     double getDodgeChance(const bool ignore_equipment) const;
 
     void setName         (const std::string& newName);
+    void setDefaultVitals(const double new_df_hp, const double new_df_mp);
     void setCurrentHealth(const double new_hp);
     void setCurrentMana  (const double new_mp);
     void setAttributes   (const Attributes new_attr);
