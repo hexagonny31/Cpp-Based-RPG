@@ -5,6 +5,7 @@
 #include "save_manager.h"
 #include "player.h"
 #include "monster.h"
+#include "monsters.hpp"
 
 #include <iostream>
 #include <vector>
@@ -215,14 +216,70 @@ void inventory(Player &player) {
     }
 }
 
-void encounter(Player &player) {
-    // all the randomizer stuff happens.
-    // battle is a bool function. which means its possible to do a re-encounter if player fails to flee. (which can be brutal)
-    auto monster = MonsterDatabase::instance().find("slime");
-    if(!monster) return;
-    if(battle(player, *monster)) std::cout << "You defeated the " << monster->getName() << "!\n";
-    else std::cout << "You were defeated by the " << monster->getName() << "...\n";
+bool attack(Player &player, Monster &monster, const bool player_first)
+{
+    if(player_first) {
+        Item* weapon = player.getEquipment(Slot::MainHand);
+        if(!weapon) {
+            std::cout << "You have no weapon equipped! You cannot attack!\n";
+            return false;
+        }
+
+        double dmg = player.getDamage(false);
+        std::pair<double, double> m_resistances = {monster.getPhysicalResist(false), 0.01};
+                                                  // i dont have a way to get magic resist yet.
+        double dmg_dealt = 0.0;
+        if(monster.didDodge()) {
+            std::cout << "The " << monster.getName() << " dodged your attack!\n";
+            return false;
+        } else {
+            switch(weapon->property.damage_type) {
+            case DamageType::Physical:
+                dmg_dealt = dmg * (1.0 - m_resistances.first);
+                break;
+            case DamageType::Magical: 
+                dmg_dealt = dmg * (1.0 - m_resistances.second);
+                break;
+            }
+            monster.setCurrentHealth(monster.getCurrentHealth() - dmg_dealt);
+            std::cout << "You dealt " << dmg_dealt << " damage to the " << monster.getName() << "!\n";
+        }
+    } else {
+        double dmg = monster.getDamage(false);
+        std::pair<double, double> p_resistances = {player.getPhysicalResist(false), 0.01};
+                                                  // i dont have a way to get magic resist yet.
+        double dmg_dealt = 0.0;
+        if(player.didDodge()) {
+            std::cout << "You dodged the " << monster.getName() << "'s attack!\n";
+            return false;
+        } else {
+            switch(player.getEquipment(Slot::MainHand)->property.damage_type) {
+            case DamageType::Physical:
+                dmg_dealt = dmg * (1.0 - p_resistances.first);
+                break;
+            case DamageType::Magical: 
+                dmg_dealt = dmg * (1.0 - p_resistances.second);
+                break;
+            }
+            player.setCurrentHealth(player.getCurrentHealth() - dmg_dealt);
+            std::cout << "The " << monster.getName() << " dealt " << dmg_dealt << " damage to you!\n";   
+        }
+    }
+
+    return true;
 }
+
+/*
+    blocking.
+
+    blocking can be used 3 times in a row. this could be influenced by armor or shields which may increase block uses.
+    after the monster's turn, the player regains one block use.
+
+    the blocking effectiveness lowers depending on how much uses you have.
+    total_bonus will increase the base bonus by x% of the base bonus. (if the total bonus is 1, it should be 0.5)
+    0.5 + (0.5 * total_bonus).
+
+*/
 
 bool battle(Player &player, Monster &monster)
 {
@@ -253,7 +310,7 @@ bool battle(Player &player, Monster &monster)
     Item* equip = player.getEquipment(Slot::Helmet);
     if(equip && equip->id == "monocle_of_true_sight") has_reveal_gear = true;
 
-    if (has_reveal_gear) {
+    if(has_reveal_gear) {
         can_see_full_stats = true;
     } else if(p_intel > m_intel) {
         double base_reveal_chance = 0.3;
@@ -263,58 +320,61 @@ bool battle(Player &player, Monster &monster)
         if(dis(gen) < total_reveal_chance) can_see_full_stats = true;
     }
 
-    // seeing the monster's attributes and stats can give the player a huge advantage, since they can plan their battle strategy accordingly. (e.g. if the monster has high physical resist, the player can choose to use magic damage instead of physical damage.)
-
-    hUtils::text.clearAll();
-    std::cout << "You have encountered a " << monster.getID() << "!\n\n";
-
-    std::cout << "Monster: " << monster.getName();
-    if(can_see_level) std::cout << "(Lvl " << monster.getLvl() << ")";
-    else std::cout << "(Lvl ???)"; 
-    std::cout << '\n';
-
-    hUtils::bar.setBar("HP", monster.getCurrentHealth(), monster.getTotalHealth(false), 124, {}, !can_see_exact_stats);
-    hUtils::bar.setBar("MP", monster.getCurrentMana(),   monster.getTotalMana(false), {}, {}, !can_see_exact_stats);
-
     double preemptive_chance = 0.2;
 
     // a 20% chance to either player attack first or the monster attack first. (chance can be influenced by player's dexterity, but it won't be a guaranteed win for the player.)
     // a 80% chance to not happen.
+    hUtils::text.clearAll();
     if(dis(gen) < preemptive_chance) {
         double player_first_prob = 0.5 + player.getDodgeChance(true);
         if(player_first_prob > 0.85) player_first_prob = 0.85;
         
-        if(dis(gen) < player_first_prob) {
-            std::cout << "Preemptive Strike! You strike first!\n";
-            // player attacks first, calculate damage, apply to monster, check if monster is alive, if not, give rewards.
-        } else {
-            std::cout << "Ambush! The monster lunges forward!\n";
-            // monster attacks first, calculate damage, apply to player, check if player is alive, if not, game over.
+        bool player_strikes_first = dis(gen) < player_first_prob;
+        // if its successful, player attacks first, calculate damage, apply to monster, check if monster is alive, if not, give rewards.
+        // monster attacks first, calculate damage, apply to player, check if player is alive, if not, game over.
+        attack(player, monster, player_strikes_first);
+        std::cout << (player_first_prob) ? "Preemptive Strike! You strike first!\n" : "Ambush! The monster lunges forward!\n";
+    }
+
+    // battle loop, player and monster take turns attacking each other until one of them is dead.
+    // player's actions also have random chances of events or outcomes, such as critical hits, dodges, and misses. (these can be influenced by player's stats and equipment.)
+    std::cout << "You have encountered a " << monster.getID() << "!\n\n";
+    while(player.isAlive() && monster.isAlive()) {
+        // seeing the monster's attributes and stats can give the player a huge advantage, since they can plan their battle strategy accordingly. (e.g. if the monster has high physical resist, the player can choose to use magic damage instead of physical damage.)
+        std::cout << "Monster: " << monster.getName();
+        if(can_see_level) std::cout << "(Lvl " << monster.getLvl() << ")";
+        else std::cout << "(Lvl ??\?)"; 
+        std::cout << '\n';
+
+        hUtils::bar.setBar("HP", monster.getCurrentHealth(), monster.getTotalHealth(false), 124, {}, !can_see_exact_stats);
+        hUtils::bar.setBar("MP", monster.getCurrentMana(),   monster.getTotalMana(false), {}, {}, !can_see_exact_stats);
+
+        // this is where player can choose to attack, use item, or flee.
+        hUtils::table.setElements(
+            " [Q] Attack",   " [W] Block",
+            " [A] Use Item", " [S] Flee"
+        );
+        hUtils::table.toColumn("left", 14, 2);
+        char c = hUtils::GetInputKeymap({'Q','W','A','S','D','E'});
+
+        // if player flees, there's a chance of failure, which can lead to a re-encounter.
+        // if player uses an item.. player looses a chance to attack.
+        // if player attacks.. calculate damage, apply to monster, check if monster is alive, if not, give rewards.
+        // if player blocks.. calculate damage reduction, apply to player, check if player is alive, if not, game over.
+        switch(std::toupper(c)) {
+        case 'Q': // attack
+            attack(player, monster, true);
+            break;
+        case 'W': // block
+            break;
+        case 'A': // use item
+            break;
+        case 'S': // flee
+            break;
         }
-    }
 
-    // this is where player can choose to attack, use item, or flee.
-    hUtils::table.setElements(
-        " [Q] Attack",   " [W] Block",
-        " [A] Use Item", " [S] Flee"
-    );
-    hUtils::table.toColumn("left", 14, 2);
-    char c = hUtils::GetInputKeymap({'Q','W','A','S','D','E'});
-
-    // if player flees, there's a chance of failure, which can lead to a re-encounter.
-    // if player uses an item.. player looses a chance to attack.
-    // if player attacks.. calculate damage, apply to monster, check if monster is alive, if not, give rewards.
-    // if player blocks.. calculate damage reduction, apply to player, check if player is alive, if not, game over.
-    switch(std::toupper(c)) {
-    case 'Q': // attack
-        break;
-    case 'W': // block
-        break;
-    case 'A': // use item
-        break;
-    case 'S': { // flee
-        break;
-    }
+        // your monster's turn...
+        if(monster.isAlive() && player.isAlive()) attack(player, monster, false);
     }
     
     if(!monster.isAlive()) {
@@ -328,11 +388,18 @@ bool battle(Player &player, Monster &monster)
             std::cout << "Your inventory is full! You couldn't pick up the rewards...\n";
         }
         hUtils::Sleep(2500);
-        return true;
-    } else if(!player.isAlive()) {
-        if(player.getCurrentHealth() < 0) player.setCurrentHealth(0);
-        return false;
+        return true; // you won yayyayaya!
     } else {
-        battle(player, monster);
+        if(player.getCurrentHealth() < 0) player.setCurrentHealth(0);
+        return false; // you not won. you lost. game over. (or maybe not, if you have a revive item or something.)
     }
+}
+
+void encounter(Player &player) {
+    // all the randomizer stuff happens.
+    // battle is a bool function. which means its possible to do a re-encounter if player fails to flee. (which can be brutal)
+    auto monster = MonsterDatabase::instance().find("target_dummy");
+    if(!monster) return;
+    if(battle(player, *monster)) std::cout << "You defeated the " << monster->getName() << "!\n";
+    else std::cout << "You were defeated by the " << monster->getName() << "...\n";
 }

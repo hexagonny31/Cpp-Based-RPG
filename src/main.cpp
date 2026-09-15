@@ -86,6 +86,7 @@ int main() {
                 inventory(player);
                 break;
             case 'W':
+                encounter(player);
                 break;
             case 'Q':
                 break;
