@@ -281,7 +281,6 @@ bool attack(Player &player, Monster &monster, const bool player_first)
 
 */
 
-bool battle(Player &player, Monster &monster)
 enum class BattleState {
     PlayerTurn,
     MonsterTurn,
@@ -290,6 +289,7 @@ enum class BattleState {
     Retreat,
 };
 
+BattleState battle(Player &player, Monster &monster)
 {
     static std::random_device rd;
     static std::mt19937 gen(rd());
@@ -408,6 +408,20 @@ void encounter(Player &player) {
     // battle is a bool function. which means its possible to do a re-encounter if player fails to flee. (which can be brutal)
     auto monster = MonsterDatabase::instance().find("target_dummy");
     if(!monster) return;
-    if(battle(player, *monster)) std::cout << "You defeated the " << monster->getName() << "!\n";
-    else std::cout << "You were defeated by the " << monster->getName() << "...\n";
+
+    // with BattleSate, we can determine the outcome and create the player's statistics.
+    BattleState outcome = battle(player, *monster);
+    switch(outcome) {
+    case BattleState::Victory:
+        std::cout << "You defeated the " << monster->getName() << "!\n";
+        break;
+    case BattleState::Defeat:
+        std::cout << "You were defeated by the " << monster->getName() << "...\n";
+        break;
+    case BattleState::Retreat:
+        std::cout << "You successfully fled from the " << monster->getName() << ".\n";
+        break;
+    default:
+        break;
+    }
 }
