@@ -10,7 +10,7 @@
     "current_health": 120.0,
     "current_mana": 100.0,
     "equipment": [
-        null,
+        "iron_shortsword",
         null,
         null,
         "leather_chestplate",
