@@ -228,42 +228,42 @@ bool attack(Player &player, Monster &monster, const bool player_first)
         double dmg = player.getDamage(false);
         std::pair<double, double> m_resistances = {monster.getPhysicalResist(false), 0.01};
                                                   // i dont have a way to get magic resist yet.
-        double dmg_dealt = 0.0;
         if(monster.didDodge()) {
             std::cout << "The " << monster.getName() << " dodged your attack!\n";
             return false;
-        } else {
-            switch(weapon->property.damage_type) {
-            case DamageType::Physical:
-                dmg_dealt = dmg * (1.0 - m_resistances.first);
-                break;
-            case DamageType::Magical: 
-                dmg_dealt = dmg * (1.0 - m_resistances.second);
-                break;
-            }
-            monster.setCurrentHealth(monster.getCurrentHealth() - dmg_dealt);
-            std::cout << "You dealt " << dmg_dealt << " damage to the " << monster.getName() << "!\n";
         }
+
+        double dmg_dealt = 0.0;
+        switch(weapon->property.damage_type) {
+        case DamageType::Physical:
+            dmg_dealt = dmg * (1.0 - m_resistances.first);
+            break;
+        case DamageType::Magical: 
+            dmg_dealt = dmg * (1.0 - m_resistances.second);
+            break;
+        }
+        monster.setCurrentHealth(monster.getCurrentHealth() - dmg_dealt);
+        std::cout << "You dealt " << dmg_dealt << " damage to the " << monster.getName() << "!\n";
     } else {
         double dmg = monster.getDamage(false);
         std::pair<double, double> p_resistances = {player.getPhysicalResist(false), 0.01};
                                                   // i dont have a way to get magic resist yet.
-        double dmg_dealt = 0.0;
         if(player.didDodge()) {
             std::cout << "You dodged the " << monster.getName() << "'s attack!\n";
             return false;
-        } else {
-            switch(player.getEquipment(Slot::MainHand)->property.damage_type) {
-            case DamageType::Physical:
-                dmg_dealt = dmg * (1.0 - p_resistances.first);
-                break;
-            case DamageType::Magical: 
-                dmg_dealt = dmg * (1.0 - p_resistances.second);
-                break;
-            }
-            player.setCurrentHealth(player.getCurrentHealth() - dmg_dealt);
-            std::cout << "The " << monster.getName() << " dealt " << dmg_dealt << " damage to you!\n";   
         }
+
+        double dmg_dealt = 0.0;
+        switch(player.getEquipment(Slot::MainHand)->property.damage_type) {
+        case DamageType::Physical:
+            dmg_dealt = dmg * (1.0 - p_resistances.first);
+            break;
+        case DamageType::Magical: 
+            dmg_dealt = dmg * (1.0 - p_resistances.second);
+            break;
+        }
+        player.setCurrentHealth(player.getCurrentHealth() - dmg_dealt);
+        std::cout << "The " << monster.getName() << " dealt " << dmg_dealt << " damage to you!\n";   
     }
 
     return true;
@@ -426,9 +426,7 @@ BattleState battle(Player &player, Monster &monster)
             break;
         }
 
-        if(monster.isAlive()) {
-            attack(player, monster, false);
-        }
+        if(monster.isAlive()) attack(player, monster, false);
     }
 }
 
