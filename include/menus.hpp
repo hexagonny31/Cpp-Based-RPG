@@ -328,11 +328,11 @@ BattleState battle(Player &player, Monster &monster)
         if(dis(gen) < total_reveal_chance) can_see_full_stats = true;
     }
 
-    double preemptive_chance = 0.2;
+    hUtils::text.clearAll();
 
     // a 20% chance to either player attack first or the monster attack first. (chance can be influenced by player's dexterity, but it won't be a guaranteed win for the player.)
     // a 80% chance to not happen.
-    hUtils::text.clearAll();
+    double preemptive_chance = 0.2;
     if(dis(gen) < preemptive_chance) {
         double player_first_prob = 0.5 + player.getDodgeChance(true);
         if(player_first_prob > 0.85) player_first_prob = 0.85;
