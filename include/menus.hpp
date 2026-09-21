@@ -282,6 +282,14 @@ bool attack(Player &player, Monster &monster, const bool player_first)
 */
 
 bool battle(Player &player, Monster &monster)
+enum class BattleState {
+    PlayerTurn,
+    MonsterTurn,
+    Victory,
+    Defeat,
+    Retreat,
+};
+
 {
     static std::random_device rd;
     static std::mt19937 gen(rd());
