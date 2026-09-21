@@ -347,7 +347,44 @@ BattleState battle(Player &player, Monster &monster)
     // battle loop, player and monster take turns attacking each other until one of them is dead.
     // player's actions also have random chances of events or outcomes, such as critical hits, dodges, and misses. (these can be influenced by player's stats and equipment.)
     std::cout << "You have encountered a " << monster.getID() << "!\n\n";
-    while(player.isAlive() && monster.isAlive()) {
+    while(true) {
+        if(!player.isAlive()) {
+            bool revived = false;
+            // check if player has a revive item or something, if so, give them a chance to use it and come back to life.
+            for(const auto& item : player.getInventory()) {
+                if(item.id == "revive_potion") {
+                    std::cout << "You have a revive potion! Do you want to use it? [Y/N]\n";
+                    char choice = hUtils::GetInputKeymap({'Y','N'});
+                    if(std::toupper(choice) == 'Y') {
+                        player.setCurrentHealth(player.getTotalHealth(false) * 0.5); // revive with 50% health
+                        std::cout << "You used the revive potion and came back to life with " << player.getCurrentHealth() << " HP!\n";
+                        hUtils::Sleep(2500);
+                        revived = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!revived) {
+                if(player.getCurrentHealth() < 0) player.setCurrentHealth(0);
+                std::cout << "You have been defeated by the " << monster.getName() << "...\n";
+                return BattleState::Defeat;
+            }
+        }
+
+        if(!monster.isAlive()) {
+            static std::random_device rd;
+            static std::mt19937 gen(rd());
+            std::uniform_int_distribution<> dist(1, 3);
+            std::vector<std::string> rewards = monster.getLootTable().dropItem(dist(gen));
+            if(player.addToInventory(rewards)) {
+                for(const std::string& reward : rewards) std::cout << "You obtained: " << reward << '\n';
+            } else {
+                std::cout << "Your inventory is full! You couldn't pick up the rewards...\n";
+            }
+            hUtils::Sleep(2500);
+            return BattleState::Victory; // you won yayyayaya!
+        }
         // seeing the monster's attributes and stats can give the player a huge advantage, since they can plan their battle strategy accordingly. (e.g. if the monster has high physical resist, the player can choose to use magic damage instead of physical damage.)
         std::cout << "Monster: " << monster.getName();
         if(can_see_level) std::cout << "(Lvl " << monster.getLvl() << ")";
@@ -378,28 +415,20 @@ BattleState battle(Player &player, Monster &monster)
         case 'A': // use item
             break;
         case 'S': // flee
+            double flee_chance = 0.25 + player.getDodgeChance(true) * 0.3;
+            if(flee_chance > 0.85) flee_chance = 0.85;
+            if(dis(gen) < flee_chance) {
+                std::cout << "You successfully fled from the " << monster.getName() << ".\n";
+                return BattleState::Retreat;
+            } else {
+                std::cout << "You failed to flee from the " << monster.getName() << ".\n";
+            }
             break;
         }
 
-        // your monster's turn...
-        if(monster.isAlive() && player.isAlive()) attack(player, monster, false);
-    }
-    
-    if(!monster.isAlive()) {
-        static std::random_device rd;
-        static std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dist(1, 3);
-        std::vector<std::string> rewards = monster.getLootTable().dropItem(dist(gen));
-        if(player.addToInventory(rewards)) {
-            for(const std::string& reward : rewards) std::cout << "You obtained: " << reward << '\n';
-        } else {
-            std::cout << "Your inventory is full! You couldn't pick up the rewards...\n";
+        if(monster.isAlive()) {
+            attack(player, monster, false);
         }
-        hUtils::Sleep(2500);
-        return true; // you won yayyayaya!
-    } else {
-        if(player.getCurrentHealth() < 0) player.setCurrentHealth(0);
-        return false; // you not won. you lost. game over. (or maybe not, if you have a revive item or something.)
     }
 }
 
