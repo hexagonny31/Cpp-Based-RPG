@@ -128,6 +128,49 @@ double Entity::getDodgeChance(const bool ignore_equipment) const
     return (std::min)(1.0, (ignore_equipment ? 0 : 0.05) + total_dodge_bonus + base_dodge);
 }
 
+bool Entity::startBlocking()
+{
+    if(current_block_uses <= 0) {
+        is_blocking = false;
+        return false;  // no block uses left.
+    }
+    --current_block_uses;
+    ++consecutive_blocks;
+
+    double total_bonus = 1.0 - (static_cast<double>(consecutive_blocks) / static_cast<double>(max_blocks));
+    if(total_bonus < 0.0) total_bonus = 0.0;
+    block_bonus = 0.5 + (0.5 * total_bonus);
+    is_blocking = true;
+    return true;
+}
+
+void Entity::endBlocking()
+{
+    is_blocking = false;
+    block_bonus = 0.0;
+}
+
+void Entity::regainBlockUse()
+{
+    if(current_block_uses > 0) ++current_block_uses;
+}
+
+void Entity::resetConsecutiveBlocks()
+{
+    consecutive_blocks = 0;
+}
+
+double Entity::getBlockReduction() const
+{
+    return is_blocking ? block_bonus : 0.0;
+}
+
+void Entity::setMaxBlockUses(int uses)
+{
+    max_blocks = uses;
+    if(current_block_uses > max_blocks) current_block_uses = max_blocks;
+}
+
 void Entity::setName(const std::string& newName)
 {
     name = newName;
@@ -159,6 +202,11 @@ void Entity::setAttributes(const Attributes new_attr)
 bool Entity::isAlive() const
 {
     return curr_hp > 0.0;
+}
+
+bool Entity::isCurrentlyBlocking() const
+{
+    return is_blocking;
 }
 
 void Entity::updateHealth()

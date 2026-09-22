@@ -111,7 +111,7 @@
             "endurance": 10,
             "intelligence": -10
         },
-        "resist_bonus": 0.25,
+        "resist_bonus": 0.2025,
         "dodge_bonus": -0.1
     },
     {
@@ -144,7 +144,7 @@
             "endurance": 8,
             "intelligence": -10
         },
-        "resist_bonus": 18.75,
+        "resist_bonus": 0.1075,
         "dodge_bonus": -0.08
     },
     {

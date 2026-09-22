@@ -22,6 +22,13 @@ protected:
     double curr_hp;
     double curr_mp;
 
+    // blockstatus
+    int max_blocks = 3;
+    int current_block_uses = max_blocks;
+    int consecutive_blocks = 0;
+    bool is_blocking = false;
+    double block_bonus = 0.0;  // percentage of damage reduction when blocking. (e.g. 0.5 = 50% damage reduction)
+
 public:
     std::string        getName      () const;
     Attributes         getAttributes() const;
@@ -29,25 +36,40 @@ public:
     Item*       getEquipment    (Slot slot) const;
     std::string getEquipmentName(Slot slot) const;
 
+    void setName(const std::string& newName);
+
     // health/mana manipulators n' shit
     double getCurrentHealth() const;
     double getCurrentMana()   const;
     double getTotalHealth(const bool ignore_equipment) const; // added bool flag for displaying raw stats.
     double getTotalMana  (const bool ignore_equipment) const;
+
+    void setDefaultVitals(const double new_df_hp, const double new_df_mp);
+    void setCurrentHealth(const double new_hp);
+    void setCurrentMana  (const double new_mp);
+
     // actual stats n' shit.
     double getDamage(const bool ignore_equipment) const;
     double getPhysicalResist(const bool ignore_equipment) const;
     double getDodgeChance(const bool ignore_equipment) const;
 
-    void setName         (const std::string& newName);
-    void setDefaultVitals(const double new_df_hp, const double new_df_mp);
-    void setCurrentHealth(const double new_hp);
-    void setCurrentMana  (const double new_mp);
     void setAttributes   (const Attributes new_attr);
+
+    // blocking n' shit
+    virtual bool startBlocking();
+    void   endBlocking();
+    void   regainBlockUse();
+    double getBlockReduction() const;
+    int    getMaxBlockUses() const;
+    int    getCurrentBlockUses() const;
+
+    void setMaxBlockUses(int uses);
 
     void updateHealth();
     void updateMana();
-    bool isAlive()  const;
+    void resetConsecutiveBlocks();
+    bool isAlive() const;
+    bool isCurrentlyBlocking() const;
     bool didDodge() const;
 };
 
