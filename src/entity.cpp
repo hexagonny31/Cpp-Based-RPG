@@ -130,11 +130,11 @@ double Entity::getDodgeChance(const bool ignore_equipment) const
 
 bool Entity::startBlocking()
 {
-    if(current_block_uses <= 0) {
+    if(curr_block_uses <= 0) {
         is_blocking = false;
         return false;  // no block uses left.
     }
-    --current_block_uses;
+    --curr_block_uses;
     ++consecutive_blocks;
 
     double total_bonus = 1.0 - (static_cast<double>(consecutive_blocks) / static_cast<double>(getMaxBlockUses()));
@@ -152,12 +152,7 @@ void Entity::endBlocking()
 
 void Entity::regainBlockUse()
 {
-    if(current_block_uses < getMaxBlockUses()) ++current_block_uses;
-}
-
-void Entity::resetConsecutiveBlocks()
-{
-    consecutive_blocks = 0;
+    if(curr_block_uses < getMaxBlockUses()) ++curr_block_uses;
 }
 
 double Entity::getBlockReduction() const
@@ -175,7 +170,7 @@ int Entity::getMaxBlockUses() const
 
 int Entity::getCurrentBlockUses() const
 {
-    return current_block_uses;
+    return curr_block_uses;
 }
 
 void Entity::setName(const std::string& newName)
@@ -228,7 +223,7 @@ void Entity::updateMana()
 
 void Entity::updateBlockUses()
 {
-    current_block_uses = getMaxBlockUses();
+    curr_block_uses = getMaxBlockUses();
 }
 
 bool Entity::didDodge() const

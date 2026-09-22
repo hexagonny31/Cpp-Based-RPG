@@ -24,7 +24,7 @@ protected:
 
     // blockstatus
     int base_max_blocks = 3;
-    int current_block_uses = base_max_blocks;
+    int curr_block_uses = base_max_blocks;
     int consecutive_blocks = 0;
     bool is_blocking = false;
     double block_bonus = 0.0;  // percentage of damage reduction when blocking. (e.g. 0.5 = 50% damage reduction)
