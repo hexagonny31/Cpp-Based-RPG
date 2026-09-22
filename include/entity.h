@@ -23,8 +23,8 @@ protected:
     double curr_mp;
 
     // blockstatus
-    int max_blocks = 3;
-    int current_block_uses = max_blocks;
+    int base_max_blocks = 3;
+    int current_block_uses = base_max_blocks;
     int consecutive_blocks = 0;
     bool is_blocking = false;
     double block_bonus = 0.0;  // percentage of damage reduction when blocking. (e.g. 0.5 = 50% damage reduction)
@@ -63,10 +63,9 @@ public:
     int    getMaxBlockUses() const;
     int    getCurrentBlockUses() const;
 
-    void setMaxBlockUses(int uses);
-
     void updateHealth();
     void updateMana();
+    void updateBlockUses();
     void resetConsecutiveBlocks();
     bool isAlive() const;
     bool isCurrentlyBlocking() const;

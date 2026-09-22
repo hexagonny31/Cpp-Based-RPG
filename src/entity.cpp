@@ -137,7 +137,7 @@ bool Entity::startBlocking()
     --current_block_uses;
     ++consecutive_blocks;
 
-    double total_bonus = 1.0 - (static_cast<double>(consecutive_blocks) / static_cast<double>(max_blocks));
+    double total_bonus = 1.0 - (static_cast<double>(consecutive_blocks) / static_cast<double>(getMaxBlockUses()));
     if(total_bonus < 0.0) total_bonus = 0.0;
     block_bonus = 0.5 + (0.5 * total_bonus);
     is_blocking = true;
@@ -152,7 +152,7 @@ void Entity::endBlocking()
 
 void Entity::regainBlockUse()
 {
-    if(current_block_uses > 0) ++current_block_uses;
+    if(current_block_uses < getMaxBlockUses()) ++current_block_uses;
 }
 
 void Entity::resetConsecutiveBlocks()
@@ -165,10 +165,17 @@ double Entity::getBlockReduction() const
     return is_blocking ? block_bonus : 0.0;
 }
 
-void Entity::setMaxBlockUses(int uses)
+int Entity::getMaxBlockUses() const
 {
-    max_blocks = uses;
-    if(current_block_uses > max_blocks) current_block_uses = max_blocks;
+    int bonus = 0;
+    Item* shield = getEquipment(Slot::OffHand);
+    if(shield) bonus = shield->property.block_use_bonus;
+    return base_max_blocks + bonus;
+}
+
+int Entity::getCurrentBlockUses() const
+{
+    return current_block_uses;
 }
 
 void Entity::setName(const std::string& newName)
@@ -217,6 +224,11 @@ void Entity::updateHealth()
 void Entity::updateMana()
 {
     curr_mp = getTotalMana(false); 
+}
+
+void Entity::updateBlockUses()
+{
+    current_block_uses = getMaxBlockUses();
 }
 
 bool Entity::didDodge() const
