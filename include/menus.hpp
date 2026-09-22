@@ -353,7 +353,7 @@ BattleState battle(Player &player, Monster &monster)
         // if its successful, player attacks first, calculate damage, apply to monster, check if monster is alive, if not, give rewards.
         // monster attacks first, calculate damage, apply to player, check if player is alive, if not, game over.
         attack(player, monster, player_strikes_first);
-        std::cout << (player_first_prob) ? "Preemptive Strike! You strike first!\n" : "Ambush! The monster lunges forward!\n";
+        std::cout << (player_strikes_first) ? "Preemptive Strike! You strike first!\n" : "Ambush! The monster lunges forward!\n";
     }
 
     // battle loop, player and monster take turns attacking each other until one of them is dead.
