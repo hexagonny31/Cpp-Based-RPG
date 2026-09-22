@@ -241,7 +241,13 @@ bool attack(Player &player, Monster &monster, const bool player_first)
         case DamageType::Magical: 
             dmg_dealt = dmg * (1.0 - m_resistances.second);
             break;
+        default:
+            std::cout << "You cannot attack with this weapon!\n";
+            return false;
         }
+
+        if(dmg_dealt < 0.0) dmg_dealt = 0.0;
+
         monster.setCurrentHealth(monster.getCurrentHealth() - dmg_dealt);
         std::cout << "You dealt " << dmg_dealt << " damage to the " << monster.getName() << "!\n";
     } else {
@@ -261,7 +267,13 @@ bool attack(Player &player, Monster &monster, const bool player_first)
         case DamageType::Magical: 
             dmg_dealt = dmg * (1.0 - p_resistances.second);
             break;
+        default:
+            std::cout << "The " << monster.getName() << " cannot attack!\n";
+            return false;
         }
+
+        if(dmg_dealt < 0.0) dmg_dealt = 0.0;
+
         player.setCurrentHealth(player.getCurrentHealth() - dmg_dealt);
         std::cout << "The " << monster.getName() << " dealt " << dmg_dealt << " damage to you!\n";   
     }
