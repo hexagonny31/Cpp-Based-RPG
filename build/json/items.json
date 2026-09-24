@@ -103,6 +103,7 @@
         "id": "iron_shield",
         "properties": {
             "sellable": true,
+            "block_use_bonus": 4,
             "equip_type": 1,
             "damage_type": 1,
             "weapon_require": 1
@@ -136,6 +137,7 @@
         "id": "wooden_shield",
         "properties": {
             "sellable": true,
+            "block_use_bonus": 2,
             "equip_type": 1,
             "damage_type": 1,
             "weapon_require": 1
