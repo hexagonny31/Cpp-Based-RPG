@@ -23,7 +23,7 @@ protected:
     double curr_mp;
 
     // blockstatus
-    int base_max_blocks = 3;
+    static constexpr int base_max_blocks = 3;
     int curr_block_uses = base_max_blocks;
     int consecutive_blocks = 0;
     bool is_blocking = false;
@@ -66,7 +66,6 @@ public:
     void updateHealth();
     void updateMana();
     void updateBlockUses();
-    void resetConsecutiveBlocks();
     bool isAlive() const;
     bool isCurrentlyBlocking() const;
     bool didDodge() const;
