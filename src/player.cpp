@@ -109,6 +109,7 @@ void Player::equipItem(Item* item, Slot slot)
     if(current) current->equipped = false;
     equipment[to_index(slot)] = item;
     item->equipped = true;
+    updateBlockUses();
 }
 
 void Player::unequipItem(Slot slot)
@@ -117,4 +118,5 @@ void Player::unequipItem(Slot slot)
     if(!current) return;
     current->equipped = false;
     equipment[to_index(slot)] = nullptr;
+    updateBlockUses();
 }
