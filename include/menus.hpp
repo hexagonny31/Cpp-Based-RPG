@@ -259,8 +259,9 @@ bool attack(Player &player, Monster &monster, const bool player_first)
             return false;
         }
 
+        DamageType m_type = DamageType::Physical;
         double dmg_dealt = 0.0;
-        switch(player.getEquipment(Slot::MainHand)->property.damage_type) {
+        switch(m_type) {
         case DamageType::Physical:
             dmg_dealt = dmg * (1.0 - p_resistances.first);
             break;
