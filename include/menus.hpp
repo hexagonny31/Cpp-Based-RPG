@@ -282,18 +282,6 @@ bool attack(Player &player, Monster &monster, const bool player_first)
     return true;
 }
 
-/*
-    blocking.
-
-    blocking can be used 3 times in a row. this could be influenced by armor or shields which may increase block uses.
-    after the monster's turn, the player regains one block use.
-
-    the blocking effectiveness lowers depending on how much uses you have.
-    total_bonus will increase the base bonus by x% of the base bonus. (if the total bonus is 1, it should be 0.5)
-    0.5 + (0.5 * total_bonus).
-
-*/
-
 enum class BattleState {
     PlayerTurn,
     MonsterTurn,
