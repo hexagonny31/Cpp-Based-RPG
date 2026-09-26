@@ -259,6 +259,9 @@ bool attack(Player &player, Monster &monster, const bool player_first)
             return false;
         }
 
+        double block_mult = 1.0 - player.getBlockReduction();
+        dmg *= block_mult;
+
         DamageType m_type = DamageType::Physical;
         double dmg_dealt = 0.0;
         switch(m_type) {
@@ -276,7 +279,12 @@ bool attack(Player &player, Monster &monster, const bool player_first)
         if(dmg_dealt < 0.0) dmg_dealt = 0.0;
 
         player.setCurrentHealth(player.getCurrentHealth() - dmg_dealt);
-        std::cout << "The " << monster.getName() << " dealt " << dmg_dealt << " damage to you!\n";   
+
+        if(player.getBlockReduction() > 0.0) {
+            std::cout << "You blocked! The " << monster.getName() << " dealt " << dmg_dealt << " damage to you! (" << player.getBlockReduction()*100 << "% blocked)\n";
+        } else {
+            std::cout << "The " << monster.getName() << " dealt " << dmg_dealt << " damage to you!\n";
+        } 
     }
 
     return true;
