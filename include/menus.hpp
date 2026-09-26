@@ -409,13 +409,19 @@ BattleState battle(Player &player, Monster &monster)
         // if player blocks.. calculate damage reduction, apply to player, check if player is alive, if not, game over.
         switch(std::toupper(c)) {
         case 'Q': // attack
+            player.endBlocking();
+            player.regainBlockUse();
             attack(player, monster, true);
             break;
         case 'W': // block
+            if(player.startBlocking()) std::cout << "You raise your guard. (Block uses left: " << player.getCurrentBlockUses() << ")\n";
+            else std::cout << "You have no block uses left!\n";
             break;
         case 'A': // use item
             break;
         case 'S': // flee
+            player.endBlocking();
+            player.regainBlockUse();
             double flee_chance = 0.25 + player.getDodgeChance(true) * 0.3;
             if(flee_chance > 0.85) flee_chance = 0.85;
             if(dis(gen) < flee_chance) {
