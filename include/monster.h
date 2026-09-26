@@ -13,6 +13,7 @@ private:
     std::string id = "";
     int lvl        = 1;
     int xp_reward  = 0;
+    double block_chance_mod = 0.0;
     std::pair<int,int> gold_reward = {0,0};
     LootTable loot;
 
@@ -22,6 +23,7 @@ public:
     std::string        getID() const;
     int                getLvl() const;
     int                getXP() const;
+    double             getBlockChance() const;
     std::pair<int,int> getGold() const;
     LootTable          getLootTable() const;
 

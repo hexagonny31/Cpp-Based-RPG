@@ -39,6 +39,19 @@ void Monster::setXP(const int new_xp_reward)
     xp_reward = new_xp_reward;
 }
 
+double Monster::getBlockChance() const
+{
+    double chance = 0.1;
+    chance += (static_cast<double>(lvl) * 0.004);
+    chance += block_chance_mod;
+    chance += (getAttributes().endurance - 10) * 0.001;
+
+    if(chance < 0.1) chance = 0.1;
+    if(chance > 0.4) chance = 0.4;
+
+    return chance;
+}
+
 void Monster::setGold(const std::pair<int,int> new_gold_reward)
 {
     gold_reward = std::move(new_gold_reward);
