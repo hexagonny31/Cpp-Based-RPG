@@ -441,7 +441,26 @@ BattleState battle(Player &player, Monster &monster)
             break;
         }
 
-        if(monster.isAlive()) attack(player, monster, false);
+        if(monster.isAlive()) {
+            static std::random_device rd;
+            static std::mt19937 gen(rd());
+            std::uniform_real_distribution<double> dis(0.0, 1.0);
+
+            if(dis(gen) < monster.getBlockChance()) {
+                if(monster.startBlocking()) {
+                    std::cout << "The " << monster.getName() << " raises its guard.\n";
+                } else {
+                    monster.endBlocking();
+                    monster.regainBlockUse();
+                    std::cout << "The " << monster.getName() << " attempted to block but failed!\n";
+                    attack(player, monster, false);
+                }
+            } else {
+                monster.endBlocking();
+                monster.regainBlockUse();
+                attack(player, monster, false);
+            }
+        }
     }
 }
 
