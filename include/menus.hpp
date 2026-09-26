@@ -246,10 +246,31 @@ bool attack(Player &player, Monster &monster, const bool player_first)
             return false;
         }
 
+        double block_reduc = monster.getBlockReduction();
+        if(block_reduc > 0.0) {
+            if(player.getAttributes().strength > monster.getAttributes().endurance) {
+                static std::random_device rd;
+                static std::mt19937 gen(rd());
+                std::uniform_real_distribution<double> dis(0.0, 1.0);
+
+                if(dis(gen) < 0.80) {
+                    block_reduc = 0.0;
+                    std::cout << "You broke the " << monster.getName() << "'s block!\n";
+                } else {
+                    block_reduc *= 0.80;
+                }
+            }
+            dmg_dealt *= (1.0 - block_reduc);
+        }
+
         if(dmg_dealt < 0.0) dmg_dealt = 0.0;
 
         monster.setCurrentHealth(monster.getCurrentHealth() - dmg_dealt);
-        std::cout << "You dealt " << dmg_dealt << " damage to the " << monster.getName() << "!\n";
+        if(block_reduc > 0.0) {
+            std::cout << "The " << monster.getName() << " blocked! You dealt " << dmg_dealt << " damage! (" << block_reduc*100 << "% blocked)\n";
+        } else {
+            std::cout << "You dealt " << dmg_dealt << " damage to the " << monster.getName() << "!\n";
+        }
     } else {
         double dmg = monster.getDamage(false);
         std::pair<double, double> p_resistances = {player.getPhysicalResist(false), 0.01};
