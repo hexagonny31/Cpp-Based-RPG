@@ -2,6 +2,7 @@
 #include "hutils.h"
 
 #include <iostream>
+#include <random>
 
 int Player::getAllocationPts() const
 {
@@ -27,6 +28,63 @@ std::vector<Item> &Player::getInventory()
 const std::vector<Item> &Player::getInventory() const
 {
     return inventory;
+}
+
+bool Player::attack(Entity& target)
+{
+    Item* weapon = getEquipment(Slot::MainHand);
+    if(!weapon) {
+        std::cout << "You have no weapon equipped! You cannot attack!\n";
+        return false;
+    }
+
+    double dmg = getDamage(false);
+    std::pair<double, double> t_resists = {target.getPhysicalResist(false), 0.01};
+
+    if(target.didDodge()) {
+        std::cout << "The " << target.getName() << " dodged your attack!\n";
+        return false;
+    }
+
+    double dmg_dealt = 0.0;
+    switch(weapon->property.damage_type) {
+    case DamageType::Physical:
+        dmg_dealt = dmg * (1.0 - t_resists.first);
+        break;
+    case DamageType::Magical:
+        dmg_dealt = dmg * (1.0 - t_resists.second);
+        break;
+    default:
+        std::cout << "You cannot attack with this weapon!\n";
+        return false;
+    }
+
+    double block_reduc = target.getBlockReduction();
+    if(block_reduc > 0.0) {
+        if(getAttributes().strength > target.getAttributes().endurance) {
+            static std::random_device rd;
+            static std::mt19937 gen(rd());
+            std::uniform_real_distribution<double> dis(0.0, 1.0);
+
+            if(dis(gen) < 0.80) {
+                block_reduc = 0.0;
+                std::cout << "You broke the " << target.getName() << "'s block!\n";
+            } else {
+                block_reduc *= 0.80;
+            }
+        }
+        dmg_dealt *= (1.0 - block_reduc);
+    }
+
+    if(dmg_dealt < 0.0) dmg_dealt = 0.0;
+
+    target.setCurrentHealth(target.getCurrentHealth() - dmg_dealt);
+    if(block_reduc > 0.0) {
+        std::cout << "The " << target.getName() << " blocked! You dealt " << dmg_dealt << " damage! (" << block_reduc*100 << "% blocked)\n";
+    } else {
+        std::cout << "You dealt " << dmg_dealt << " damage to the " << target.getName() << "!\n";
+    }
+    return true;
 }
 
 void Player::setAllocation(int newAllocation)

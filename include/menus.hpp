@@ -216,101 +216,6 @@ void inventory(Player &player) {
     }
 }
 
-bool attack(Player &player, Monster &monster, const bool player_first)
-{
-    if(player_first) {
-        Item* weapon = player.getEquipment(Slot::MainHand);
-        if(!weapon) {
-            std::cout << "You have no weapon equipped! You cannot attack!\n";
-            return false;
-        }
-
-        double dmg = player.getDamage(false);
-        std::pair<double, double> m_resistances = {monster.getPhysicalResist(false), 0.01};
-                                                  // i dont have a way to get magic resist yet.
-        if(monster.didDodge()) {
-            std::cout << "The " << monster.getName() << " dodged your attack!\n";
-            return false;
-        }
-
-        double dmg_dealt = 0.0;
-        switch(weapon->property.damage_type) {
-        case DamageType::Physical:
-            dmg_dealt = dmg * (1.0 - m_resistances.first);
-            break;
-        case DamageType::Magical: 
-            dmg_dealt = dmg * (1.0 - m_resistances.second);
-            break;
-        default:
-            std::cout << "You cannot attack with this weapon!\n";
-            return false;
-        }
-
-        double block_reduc = monster.getBlockReduction();
-        if(block_reduc > 0.0) {
-            if(player.getAttributes().strength > monster.getAttributes().endurance) {
-                static std::random_device rd;
-                static std::mt19937 gen(rd());
-                std::uniform_real_distribution<double> dis(0.0, 1.0);
-
-                if(dis(gen) < 0.80) {
-                    block_reduc = 0.0;
-                    std::cout << "You broke the " << monster.getName() << "'s block!\n";
-                } else {
-                    block_reduc *= 0.80;
-                }
-            }
-            dmg_dealt *= (1.0 - block_reduc);
-        }
-
-        if(dmg_dealt < 0.0) dmg_dealt = 0.0;
-
-        monster.setCurrentHealth(monster.getCurrentHealth() - dmg_dealt);
-        if(block_reduc > 0.0) {
-            std::cout << "The " << monster.getName() << " blocked! You dealt " << dmg_dealt << " damage! (" << block_reduc*100 << "% blocked)\n";
-        } else {
-            std::cout << "You dealt " << dmg_dealt << " damage to the " << monster.getName() << "!\n";
-        }
-    } else {
-        double dmg = monster.getDamage(false);
-        std::pair<double, double> p_resistances = {player.getPhysicalResist(false), 0.01};
-                                                  // i dont have a way to get magic resist yet.
-        if(player.didDodge()) {
-            std::cout << "You dodged the " << monster.getName() << "'s attack!\n";
-            return false;
-        }
-
-        double block_mult = 1.0 - player.getBlockReduction();
-        dmg *= block_mult;
-
-        DamageType m_type = DamageType::Physical;
-        double dmg_dealt = 0.0;
-        switch(m_type) {
-        case DamageType::Physical:
-            dmg_dealt = dmg * (1.0 - p_resistances.first);
-            break;
-        case DamageType::Magical: 
-            dmg_dealt = dmg * (1.0 - p_resistances.second);
-            break;
-        default:
-            std::cout << "The " << monster.getName() << " cannot attack!\n";
-            return false;
-        }
-
-        if(dmg_dealt < 0.0) dmg_dealt = 0.0;
-
-        player.setCurrentHealth(player.getCurrentHealth() - dmg_dealt);
-
-        if(player.getBlockReduction() > 0.0) {
-            std::cout << "You blocked! The " << monster.getName() << " dealt " << dmg_dealt << " damage to you! (" << player.getBlockReduction()*100 << "% blocked)\n";
-        } else {
-            std::cout << "The " << monster.getName() << " dealt " << dmg_dealt << " damage to you!\n";
-        } 
-    }
-
-    return true;
-}
-
 enum class BattleState {
     PlayerTurn,
     MonsterTurn,
@@ -370,8 +275,12 @@ BattleState battle(Player &player, Monster &monster)
         bool player_strikes_first = dis(gen) < player_first_prob;
         // if its successful, player attacks first, calculate damage, apply to monster, check if monster is alive, if not, give rewards.
         // monster attacks first, calculate damage, apply to player, check if player is alive, if not, game over.
-        attack(player, monster, player_strikes_first);
-        std::cout << (player_strikes_first) ? "Preemptive Strike! You strike first!\n" : "Ambush! The monster lunges forward!\n";
+        if(player_strikes_first) {
+            player.attack(monster);
+            std::cout << "Preemptive Strike! You strike first!\n";
+        } else {
+            std::cout << "Ambush! The enemy lunges forward!\n";
+        }
     }
 
     // battle loop, player and monster take turns attacking each other until one of them is dead.
@@ -440,7 +349,7 @@ BattleState battle(Player &player, Monster &monster)
         case 'Q': // attack
             player.endBlocking();
             player.regainBlockUse();
-            attack(player, monster, true);
+            player.attack(monster);
             break;
         case 'W': // block
             if(player.startBlocking()) std::cout << "You raise your guard. (Block uses left: " << player.getCurrentBlockUses() << ")\n";
@@ -474,12 +383,12 @@ BattleState battle(Player &player, Monster &monster)
                     monster.endBlocking();
                     monster.regainBlockUse();
                     std::cout << "The " << monster.getName() << " attempted to block but failed!\n";
-                    attack(player, monster, false);
+                    monster.attack(player);
                 }
             } else {
                 monster.endBlocking();
                 monster.regainBlockUse();
-                attack(player, monster, false);
+                monster.attack(player);
             }
         }
     }

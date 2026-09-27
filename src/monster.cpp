@@ -1,4 +1,8 @@
 #include "monster.h"
+#include "player.h"
+
+#include <iostream>
+#include <random>
 
 std::string Monster::getID() const
 {
@@ -22,6 +26,49 @@ std::pair<int,int> Monster::getGold() const
 LootTable Monster::getLootTable() const 
 {
     return loot;
+}
+
+bool Monster::attack(Entity& target)
+{
+    double dmg = getDamage(false);
+    std::pair<double, double> t_resists = {target.getPhysicalResist(false), 0.01};
+    if(target.didDodge()) {
+        if(dynamic_cast<Player*>(&target)) {
+            std::cout << "You dodged the " << getName() << "'s attack!\n";
+        } else {
+            std::cout << "The " << target.getName() << " dodged the " << getName() << "'s attack!\n";
+        }
+        return false;
+    }
+
+    double block_mult = 1.0 - target.getBlockReduction();
+    dmg *= block_mult;
+
+    DamageType dmg_type = DamageType::Physical;  // temporary. soon to be something more cooler.
+    double dmg_dealt = 0.0;
+    switch(dmg_type) {
+    case DamageType::Physical:
+        dmg_dealt = dmg * (1.0 - t_resists.first);
+        break;
+    case DamageType::Magical:
+        dmg_dealt = dmg * (1.0 - t_resists.second);
+        break;
+    default:
+        std::cout << "The " << getName() << " cannot attack!\n";
+        return false;
+    }
+
+    if(dmg_dealt < 0.0) dmg_dealt = 0.0;
+
+    target.setCurrentHealth(target.getCurrentHealth() - dmg_dealt);
+    if(target.getBlockReduction() > 0.0) {
+        if(dynamic_cast<Player*>(&target)) std::cout << "You blocked its attack! ";
+        else std::cout << "The " << target.getName() << " blocked its attack! ";
+        std::cout << "The " << getName() << " dealt " << dmg_dealt << " damage! (" << target.getBlockReduction()*100 << "% blocked)\n";
+    } else {
+        std::cout << "The " << getName() << " dealt " << dmg_dealt << " damage!\n";
+    }
+    return true;
 }
 
 void Monster::setID(const std::string new_id)
