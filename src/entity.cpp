@@ -1,6 +1,7 @@
 #include "entity.h"
 
 #include <vector>
+#include <random>
 
 std::string Entity::getName      () const
 {
@@ -234,6 +235,10 @@ void Entity::updateBlockUses()
 bool Entity::didDodge() const
 {
     double total = getDodgeChance(false);
-    double random = static_cast<double>(rand())/RAND_MAX;
-    return random < total;
+
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dis(0.0, 1.0);
+    
+    return dis(gen) < total;
 }
