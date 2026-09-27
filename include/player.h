@@ -23,6 +23,8 @@ public:
     std::vector<Item>&       getInventory();
     const std::vector<Item>& getInventory() const;
 
+    bool attack(Entity& target) override;
+
     void setAllocation(int newAllocation);
     bool setAttribute();
 

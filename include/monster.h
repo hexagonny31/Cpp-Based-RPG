@@ -27,6 +27,8 @@ public:
     std::pair<int,int> getGold() const;
     LootTable          getLootTable() const;
 
+    bool attack(Entity& target) override;
+
     void setID       (const std::string new_id);
     void setLvl      (const int new_lvl);
     void setXP       (const int new_xp_reward);

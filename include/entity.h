@@ -55,7 +55,8 @@ public:
 
     void setAttributes   (const Attributes new_attr);
 
-    // blocking n' shit
+    // combat n' shit
+    virtual bool attack(Entity& target) = 0;
     virtual bool startBlocking();
     void   endBlocking();
     void   regainBlockUse();
