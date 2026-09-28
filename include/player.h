@@ -34,6 +34,7 @@ public:
     bool removeFromInventory(const std::vector<std::string>& ids);
     void equipItem(Item* item, Slot slot);
     void unequipItem(Slot slot);
+    bool hasItem(const std::string& id) const;
 };
 
 #endif

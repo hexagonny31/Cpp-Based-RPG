@@ -204,3 +204,9 @@ void Player::unequipItem(Slot slot)
     equipment[to_index(slot)] = nullptr;
     updateBlockUses();
 }
+
+bool Player::hasItem(const std::string& id) const
+{
+    for(const Item& item : inventory) if(item.id == id) return true;
+    return false;
+}
