@@ -340,36 +340,50 @@ BattleState battle(Player &player, Monster &monster)
             " [A] Use Item", " [S] Flee"
         );
         hUtils::table.toColumn("left", 14, 2);
-        char c = hUtils::GetInputKeymap({'Q','W','A','S','D','E'});
 
-        // if player flees, there's a chance of failure, which can lead to a re-encounter.
-        // if player uses an item.. player looses a chance to attack.
-        // if player attacks.. calculate damage, apply to monster, check if monster is alive, if not, give rewards.
-        // if player blocks.. calculate damage reduction, apply to player, check if player is alive, if not, game over.
-        switch(std::toupper(c)) {
-        case 'Q': // attack
-            player.endBlocking();
-            player.regainBlockUse();
-            player.attack(monster);
-            break;
-        case 'W': // block
-            if(player.startBlocking()) std::cout << "You raise your guard. (Block uses left: " << player.getCurrentBlockUses() << ")\n";
-            else std::cout << "You have no block uses left!\n";
-            break;
-        case 'A': // use item
-            break;
-        case 'S': // flee
-            player.endBlocking();
-            player.regainBlockUse();
-            double flee_chance = 0.25 + player.getDodgeChance(true) * 0.3;
-            if(flee_chance > 0.85) flee_chance = 0.85;
-            if(dis(gen) < flee_chance) {
-                std::cout << "You successfully fled from the " << monster.getName() << ".\n";
-                return BattleState::Retreat;
-            } else {
+        static std::random_device turn_rd;
+        static std::mt19937 turn_gen(turn_rd());
+        std::uniform_real_distribution<double> turn_dis(0.0, 1.0);
+
+        bool turn_completed = false;
+        while(!turn_completed) {
+            char c = hUtils::GetInputKeymap({'Q','W','A','S','D','E'});
+
+            // if player flees, there's a chance of failure, which can lead to a re-encounter.
+            // if player uses an item.. player looses a chance to attack.
+            // if player attacks.. calculate damage, apply to monster, check if monster is alive, if not, give rewards.
+            // if player blocks.. calculate damage reduction, apply to player, check if player is alive, if not, game over.
+            switch(std::toupper(c)) {
+            case 'Q':    // attack
+                player.endBlocking();
+                player.regainBlockUse();
+                player.attack(monster);
+                turn_completed = true;
+                break;
+            case 'W':    // block
+                if(player.startBlocking()) {
+                    std::cout << "You raise your guard. (Block uses left: " << player.getCurrentBlockUses() << ")\n";
+                    turn_completed = true;
+                } else {
+                    std::cout << "You have no block uses left!\n";
+                }
+                break;
+            case 'A':    // use item
+                break;
+            case 'S': {  // flee
+                player.endBlocking();
+                double flee_chance = 0.25 + (player.getDodgeChance(true) * 0.3);
+                if(flee_chance > 0.85) flee_chance = 0.85;
+                if(turn_dis(gen) < flee_chance) {
+                    std::cout << "You successfully fled from the " << monster.getName() << ".\n";
+                    return BattleState::Retreat;
+                }
                 std::cout << "You failed to flee from the " << monster.getName() << ".\n";
+                player.regainBlockUse();
+                turn_completed = true;
+                break;
             }
-            break;
+            }
         }
 
         if(monster.isAlive()) {
