@@ -296,6 +296,7 @@ BattleState battle(Player &player, Monster &monster)
                     char choice = hUtils::GetInputKeymap({'Y','N'});
                     if(std::toupper(choice) == 'Y') {
                         player.setCurrentHealth(player.getTotalHealth(false) * 0.5); // revive with 50% health
+                        player.removeFromInventory("revive_potion");
                         std::cout << "You used the revive potion and came back to life with " << player.getCurrentHealth() << " HP!\n";
                         hUtils::Sleep(2500);
                         revived = true;
@@ -322,7 +323,7 @@ BattleState battle(Player &player, Monster &monster)
                 std::cout << "Your inventory is full! You couldn't pick up the rewards...\n";
             }
             hUtils::Sleep(2500);
-            return BattleState::Victory; // you won yayyayaya!
+            return BattleState::Victory;
         }
         // seeing the monster's attributes and stats can give the player a huge advantage, since they can plan their battle strategy accordingly. (e.g. if the monster has high physical resist, the player can choose to use magic damage instead of physical damage.)
         std::cout << "Monster: " << monster.getName();
