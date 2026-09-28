@@ -160,6 +160,32 @@ bool Player::addToInventory(const std::vector<std::string>& ids)
     return added;
 }
 
+bool Player::removeFromInventory(const std::string& id)
+{
+    for(auto it = inventory.begin(); it != inventory.end(); ++it) {
+        if(it->id != id) continue;
+        if(it->equipped) {
+            for(size_t i = 0; i < (size_t)Slot::COUNT; ++i) {
+                Slot slot = (Slot)i;
+                if(getEquipment(slot) == &(*it)) {
+                    unequipItem(slot);
+                    break;
+                }
+            }
+        }
+        inventory.erase(it);
+        return true;
+    }
+    return false;
+}
+
+bool Player::removeFromInventory(const std::vector<std::string>& ids)
+{
+    bool removed = false;
+    for(const std::string& id : ids) if(removeFromInventory(id)) removed = true;
+    return removed;
+}
+
 void Player::equipItem(Item* item, Slot slot)
 {
     if(!item || item->property.equip_type == EquipType::None) return;

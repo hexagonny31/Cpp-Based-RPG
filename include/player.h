@@ -28,8 +28,10 @@ public:
     void setAllocation(int newAllocation);
     bool setAttribute();
 
-    bool addToInventory(const std::string& id);
-    bool addToInventory(const std::vector<std::string>& ids);
+    bool addToInventory     (const std::string& id);
+    bool addToInventory     (const std::vector<std::string>& ids);
+    bool removeFromInventory(const std::string& id);
+    bool removeFromInventory(const std::vector<std::string>& ids);
     void equipItem(Item* item, Slot slot);
     void unequipItem(Slot slot);
 };
