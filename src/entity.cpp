@@ -141,7 +141,7 @@ bool Entity::startBlocking()
     const int max_uses = getMaxBlockUses();
     double total_bonus = 1.0;
     if(max_uses > 0) {
-        total_bonus = 1.0 - (static_cast<double>(consecutive_blocks) / static_cast<double>(max_uses));
+        total_bonus = 1.0 - (1.0 * consecutive_blocks / max_uses);
         if(total_bonus < 0.0) total_bonus = 0.0;
     }
     block_bonus = 0.5 + (0.5 * total_bonus);
