@@ -132,7 +132,7 @@ double Entity::getDodgeChance(const bool ignore_equipment) const
 bool Entity::startBlocking()
 {
     if(curr_block_uses <= 0) {
-        is_blocking = false;
+        endBlocking();
         return false;  // no block uses left.
     }
     --curr_block_uses;
