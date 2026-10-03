@@ -276,8 +276,8 @@ BattleState battle(Player &player, Monster &monster)
         // if its successful, player attacks first, calculate damage, apply to monster, check if monster is alive, if not, give rewards.
         // monster attacks first, calculate damage, apply to player, check if player is alive, if not, game over.
         if(player_strikes_first) {
-            player.attack(monster);
             std::cout << "Preemptive Strike! You strike first!\n";
+            player.attack(monster);
         } else {
             std::cout << "Ambush! The enemy lunges forward!\n";
         }
@@ -290,18 +290,15 @@ BattleState battle(Player &player, Monster &monster)
         if(!player.isAlive()) {
             bool revived = false;
             // check if player has a revive item or something, if so, give them a chance to use it and come back to life.
-            for(const auto& item : player.getInventory()) {
-                if(item.id == "revive_potion") {
-                    std::cout << "You have a revive potion! Do you want to use it? [Y/N]\n";
-                    char choice = hUtils::GetInputKeymap({'Y','N'});
-                    if(std::toupper(choice) == 'Y') {
-                        player.setCurrentHealth(player.getTotalHealth(false) * 0.5); // revive with 50% health
-                        player.removeFromInventory("revive_potion");
-                        std::cout << "You used the revive potion and came back to life with " << player.getCurrentHealth() << " HP!\n";
-                        hUtils::Sleep(2500);
-                        revived = true;
-                        break;
-                    }
+            if(player.hasItem("revive_potion")) {
+                std::cout << "You have a revive potion! Do you want to use it? [Y/N]\n";
+                char choice = hUtils::GetInputKeymap({'Y','N'});
+                if(std::toupper(choice) == 'Y') {
+                    player.setCurrentHealth(player.getTotalHealth(false) * 0.5); // revive with 50% health
+                    player.removeFromInventory("revive_potion");
+                    std::cout << "You used the revive potion and came back to life with " << player.getCurrentHealth() << " HP!\n";
+                    hUtils::Sleep(2500);
+                    revived = true;
                 }
             }
 
@@ -387,16 +384,10 @@ BattleState battle(Player &player, Monster &monster)
         }
 
         if(monster.isAlive()) {
-            static std::random_device rd;
-            static std::mt19937 gen(rd());
-            std::uniform_real_distribution<double> dis(0.0, 1.0);
-
-            if(dis(gen) < monster.getBlockChance()) {
+            if(turn_dis(turn_gen) < monster.getBlockChance()) {
                 if(monster.startBlocking()) {
                     std::cout << "The " << monster.getName() << " raises its guard.\n";
                 } else {
-                    monster.endBlocking();
-                    monster.regainBlockUse();
                     std::cout << "The " << monster.getName() << " attempted to block but failed!\n";
                     monster.attack(player);
                 }
