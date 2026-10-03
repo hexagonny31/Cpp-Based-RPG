@@ -124,7 +124,7 @@ bool unEquip(Player &player) {
     }
 }
 
-void statistics(Player &player) {
+void statistics(Player &player, bool exit_only = false) {
     while(true) {
         char c ='\0';
         hUtils::text.clearAll(500);
@@ -149,16 +149,22 @@ void statistics(Player &player) {
                 << "  Intelligence: " << attribute.intelligence << " (" << player.getTotalMana(true)          << ")\n"
                 << "  Dexterity:    " << attribute.dexterity    << " (" << player.getDodgeChance(true)*100    << "%)\n";
         hUtils::text.toLine();
-        std::cout << "[Q] Allocate | [A] Equip | [S] Unequip | [E] Exit\n";
 
-        c = hUtils::GetInputKeymap({'Q','A','S','E'});
-
-        switch(std::toupper(c)) {
-        case 'Q': player.setAttribute(); break;
-        case 'A': equip(player);         break;
-        case 'S': unEquip(player);       break;
-        case 'E': return;
+        if(exit_only) {
+            std::cout << "[E] Exit\n";
+            c = hUtils::GetInputKeymap({'E'});
+            if(std::toupper(c) == 'E') return;
+        } else {
+            std::cout << "[Q] Allocate | [A] Equip | [S] Unequip | [E] Exit\n";
+            c = hUtils::GetInputKeymap({'Q','A','S','E'});
+            switch(std::toupper(c)) {
+            case 'Q': player.setAttribute(); break;
+            case 'A': equip(player);         break;
+            case 'S': unEquip(player);       break;
+            case 'E': return;
+            }
         }
+
     }
 }
 
@@ -380,6 +386,9 @@ BattleState battle(Player &player, Monster &monster)
                 turn_completed = true;
                 break;
             }
+            case 'D': // check player stats
+                statistics(player, true);
+                break;
             }
         }
 

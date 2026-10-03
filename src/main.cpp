@@ -80,7 +80,7 @@ int main() {
         try {
             switch(std::toupper(c)) {
             case 'A':
-                statistics(player);
+                statistics(player, false);
                 break;
             case 'S':
                 inventory(player);
