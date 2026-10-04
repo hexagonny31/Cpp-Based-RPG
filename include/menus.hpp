@@ -129,8 +129,9 @@ void statistics(Player &player, bool exit_only = false) {
         char c ='\0';
         hUtils::text.clearAll(500);
         std::cout << "Player Info:\n"
-                << "  Name:   " << player.getName() << '\n'
-                << "  Points: " << player.getAllocationPts() << '\n';
+                << "  Name:       " << player.getName() << '\n'
+                << "  Points:     " << player.getAllocationPts() << '\n'
+                << "  Block Uses: " << player.getCurrentBlockUses() << "/" << player.getMaxBlockUses() << '\n';
         hUtils::bar.setBar("HP", player.getCurrentHealth(), player.getTotalHealth(false), 124);
         hUtils::bar.setBar("MP", player.getCurrentMana(),   player.getTotalMana(false));
         hUtils::text.toLine();
