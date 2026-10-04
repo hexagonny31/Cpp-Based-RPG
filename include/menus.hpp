@@ -236,6 +236,8 @@ BattleState battle(Player &player, Monster &monster)
     static std::mt19937 gen(rd());
     std::uniform_real_distribution<double> dis(0.0, 1.0);
 
+    unsigned char see_flags = 0;
+
     int p_intel = player.getAttributes().intelligence;
     int m_intel = monster.getAttributes().intelligence;
 
@@ -243,13 +245,12 @@ BattleState battle(Player &player, Monster &monster)
 
     // if the player has high enough intelligence, they can see the monster's level.
     // else if the player's intelligence is more than 20% lower than the monster's intelligence, they can see the monster's level.
-    bool can_see_level = false;
-    if(p_intel >= m_intel || p_intel < m_intel * 0.8) can_see_level = true;
+    if(p_intel >= m_intel || p_intel < m_intel * 0.8) see_flags = see_flags | (1u << 0);
 
     // seeing the monster's level can give the player an idea of how strong the monster is, since levels are directly proportional to the monster's stats. (e.g. player's can learn the approximate calculation to plan their battle strategy.)
 
     // if the player has higher or equal intelligence than the monster, they can see the monster's exact health points, mana points.
-    bool can_see_exact_stats = (p_intel >= m_intel);
+    if(p_intel >= m_intel) see_flags = see_flags | (1u << 1);
 
     // if the player has a special equipment, they have a guaranteed chance to see the monster's attributes and stats. (it sacrifices an armor slot, but it can be a game changer.)
     // else if the player has higher intelligence than the monster, they can have a chance to see the monster's attributes and stats.
@@ -260,13 +261,13 @@ BattleState battle(Player &player, Monster &monster)
     if(equip && equip->id == "monocle_of_true_sight") has_reveal_gear = true;
 
     if(has_reveal_gear) {
-        can_see_full_stats = true;
+        see_flags = see_flags | (1u << 2) | (1u << 3);
     } else if(p_intel > m_intel) {
         double base_reveal_chance = 0.3;
         double bonus_chance = ((double)p_intel / m_intel) - 1.0;
         if(bonus_chance > 0.5) bonus_chance = 0.5;
         double total_reveal_chance = base_reveal_chance + bonus_chance;
-        if(dis(gen) < total_reveal_chance) can_see_full_stats = true;
+        if(dis(gen) < total_reveal_chance) see_flags = see_flags | (1u << 2) | (1u << 3);
     }
 
     hUtils::text.clearAll();
