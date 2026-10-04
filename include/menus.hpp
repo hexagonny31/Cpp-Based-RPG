@@ -340,9 +340,10 @@ BattleState battle(Player &player, Monster &monster)
         // this is where player can choose to attack, use item, or flee.
         hUtils::table.setElements(
             " [Q] Attack",   " [W] Block",
-            " [A] Use Item", " [S] Flee"
+            " [A] Use Item", " [S] Flee",
+            " [D] See stats"
         );
-        hUtils::table.toColumn("left", 14, 2);
+        hUtils::table.toColumn("left", 15, 2);
 
         static std::random_device turn_rd;
         static std::mt19937 turn_gen(turn_rd());
