@@ -3,7 +3,7 @@
 #include <vector>
 #include <random>
 
-std::string Entity::getName      () const
+std::string Entity::getName() const
 {
     return name;
 }
@@ -13,7 +13,7 @@ Attributes Entity::getAttributes() const
     return attribute;
 }
 
-std::vector<Item*> Entity::getEquipment () const
+std::vector<Item*> Entity::getEquipment() const
 {
     return equipment;
 }
@@ -60,16 +60,14 @@ double Entity::getCurrentMana() const
 
 double Entity::getTotalMana(const bool ignore_equipment) const 
 { 
-    double bonus_mp = 15.0 * attribute.intelligence;
+    int total_int = attribute.intelligence;
     
     if(!ignore_equipment) {
         for(const Item* item : equipment) {
-            if(item && item->equipped) bonus_mp += item->attribute.intelligence;
+            if(item && item->equipped) total_int += item->attribute.intelligence;
         }
-        return df_mp + bonus_mp;
-    } else {
-        return bonus_mp;
     }
+    return df_mp + (15.0 * (double)total_int);
 }
 
 // actual stats n' shit.
