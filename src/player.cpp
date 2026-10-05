@@ -39,7 +39,7 @@ bool Player::attack(Entity& target)
     }
 
     double dmg = getDamage(false);
-    std::pair<double, double> t_resists = {target.getPhysicalResist(false), 0.01};
+    std::pair<double, double> t_resists = {target.getPhysicalResist(false), target.getMagicalResist(false)};
 
     if(target.didDodge()) {
         std::cout << "The " << target.getName() << " dodged your attack!\n";

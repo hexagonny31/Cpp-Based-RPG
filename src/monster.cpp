@@ -31,7 +31,7 @@ LootTable Monster::getLootTable() const
 bool Monster::attack(Entity& target)
 {
     double dmg = getDamage(false);
-    std::pair<double, double> t_resists = {target.getPhysicalResist(false), 0.01};
+    std::pair<double, double> t_resists = {target.getPhysicalResist(false), target.getMagicalResist(false)};
     if(target.didDodge()) {
         if(dynamic_cast<Player*>(&target)) {
             std::cout << "You dodged the " << getName() << "'s attack!\n";
