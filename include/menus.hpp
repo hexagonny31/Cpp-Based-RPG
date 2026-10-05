@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <random>
+#include <bitset>
 
 bool equip(Player &player){
     struct EquipOption {
@@ -231,6 +232,37 @@ enum class BattleState {
     Retreat,
 };
 
+void battleStatus(const Player& player, const Monster& monster, unsigned char see_flags)
+{
+    std::cout << "Monster: " << monster.getName();
+    if(see_flags & (1u << 0)) std::cout << "(Lvl " << monster.getLvl() << ")";
+    else std::cout << "(Lvl ??\?)"; 
+    std::cout << '\n';
+
+    hUtils::bar.setBar("HP", monster.getCurrentHealth(), monster.getTotalHealth(false), 124, {}, !(see_flags & (1u << 1)));
+    hUtils::bar.setBar("MP", monster.getCurrentMana(),   monster.getTotalMana(false), {}, {}, !(see_flags & (1u << 1)));
+
+    if(see_flags & (1u << 2)) {
+        std::cout << "Physical Resist: " << monster.getPhysicalResist(!(see_flags & (1u << 1)))*100 << "%\n";
+        std::cout << "Magical Resist:  " << monster.getMagicalResist(!(see_flags & (1u << 1)))*100  << "%\n";
+    }
+    if(see_flags & (1u << 3)) {
+        const Attributes &attribute = monster.getAttributes();
+        std::cout << "Vigor:        " << attribute.vigor        << '\n';
+        std::cout << "Strength:     " << attribute.strength     << '\n';
+        std::cout << "Endurance:    " << attribute.endurance    << '\n';
+        std::cout << "Intelligence: " << attribute.intelligence << '\n';
+        std::cout << "Dexterity:    " << attribute.dexterity    << '\n';
+    }
+
+    hUtils::table.setElements(
+        " [Q] Attack",   " [W] Block",
+        " [A] Use Item", " [S] Flee",
+        " [D] See stats"
+    );
+    hUtils::table.toColumn("left", 15, 2);
+}
+
 BattleState battle(Player &player, Monster &monster)
 {
     static std::random_device rd;
@@ -241,6 +273,9 @@ BattleState battle(Player &player, Monster &monster)
 
     int p_intel = player.getAttributes().intelligence;
     int m_intel = monster.getAttributes().intelligence;
+
+    std::pair<double, double> p_resists = {player.getPhysicalResist(false), 0.01};
+    std::pair<double, double> m_resists = {monster.getPhysicalResist(false), 0.01};
 
     // battle intro, show monster info
 
@@ -331,21 +366,7 @@ BattleState battle(Player &player, Monster &monster)
             return BattleState::Victory;
         }
         // seeing the monster's attributes and stats can give the player a huge advantage, since they can plan their battle strategy accordingly. (e.g. if the monster has high physical resist, the player can choose to use magic damage instead of physical damage.)
-        std::cout << "Monster: " << monster.getName();
-        if(can_see_level) std::cout << "(Lvl " << monster.getLvl() << ")";
-        else std::cout << "(Lvl ??\?)"; 
-        std::cout << '\n';
-
-        hUtils::bar.setBar("HP", monster.getCurrentHealth(), monster.getTotalHealth(false), 124, {}, !can_see_exact_stats);
-        hUtils::bar.setBar("MP", monster.getCurrentMana(),   monster.getTotalMana(false), {}, {}, !can_see_exact_stats);
-
-        // this is where player can choose to attack, use item, or flee.
-        hUtils::table.setElements(
-            " [Q] Attack",   " [W] Block",
-            " [A] Use Item", " [S] Flee",
-            " [D] See stats"
-        );
-        hUtils::table.toColumn("left", 15, 2);
+        battleStatus(player, monster, see_flags);
 
         static std::random_device turn_rd;
         static std::mt19937 turn_gen(turn_rd());
@@ -391,6 +412,7 @@ BattleState battle(Player &player, Monster &monster)
             }
             case 'D': // check player stats
                 statistics(player, true);
+                battleStatus(player, monster, see_flags);
                 break;
             }
         }
