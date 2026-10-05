@@ -51,6 +51,7 @@ public:
     // actual stats n' shit.
     double getDamage(const bool ignore_equipment) const;
     double getPhysicalResist(const bool ignore_equipment) const;
+    double getMagicalResist (const bool ignore_equipment) const;
     double getDodgeChance(const bool ignore_equipment) const;
 
     void setAttributes   (const Attributes new_attr);

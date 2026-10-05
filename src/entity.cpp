@@ -111,6 +111,24 @@ double Entity::getPhysicalResist(const bool ignore_equipment) const
     }
 }
 
+double Entity::getMagicalResist(const bool ignore_equipment) const
+{
+    int total_int = attribute.intelligence;
+    double total_resist_bonus = 0.0;
+
+    if(!ignore_equipment) {
+        for(const Item* item : equipment) {
+            if(item && item->equipped) {
+                total_int += item->attribute.intelligence;
+                total_resist_bonus += item->resist_bonus;
+            }
+        }
+        return total_resist_bonus + ((max_bonus * total_int) / (100.0 * (max_bonus + total_int)));
+    } else {
+        return (max_bonus * total_int) / (100.0 * (max_bonus + total_int));
+    }
+}
+
 double Entity::getDodgeChance(const bool ignore_equipment) const
 {
     int total_dex = attribute.dexterity;
