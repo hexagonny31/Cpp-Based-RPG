@@ -103,10 +103,8 @@ double Entity::getPhysicalResist(const bool ignore_equipment) const
                 total_resist_bonus += item->resist_bonus;  // from armor and shields
             }
         }
-        return total_resist_bonus + ((max_bonus * total_end) / (100.0 * (max_bonus + total_end)));
-    } else {
-        return (max_bonus * total_end) / (100.0 * (max_bonus + total_end));
     }
+    return total_resist_bonus + ((max_bonus * total_end) / (100.0 * (max_bonus + total_end)));
 }
 
 double Entity::getMagicalResist(const bool ignore_equipment) const
@@ -121,10 +119,8 @@ double Entity::getMagicalResist(const bool ignore_equipment) const
                 total_resist_bonus += item->resist_bonus;
             }
         }
-        return total_resist_bonus + ((max_bonus * total_int) / (100.0 * (max_bonus + total_int)));
-    } else {
-        return (max_bonus * total_int) / (100.0 * (max_bonus + total_int));
     }
+    return total_resist_bonus + ((max_bonus * total_int) / (100.0 * (max_bonus + total_int)));
 }
 
 double Entity::getDodgeChance(const bool ignore_equipment) const
