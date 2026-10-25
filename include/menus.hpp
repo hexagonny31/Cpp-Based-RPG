@@ -274,8 +274,8 @@ BattleState battle(Player &player, Monster &monster)
     int p_intel = player.getAttributes().intelligence;
     int m_intel = monster.getAttributes().intelligence;
 
-    std::pair<double, double> p_resists = {player.getPhysicalResist(false), 0.01};
-    std::pair<double, double> m_resists = {monster.getPhysicalResist(false), 0.01};
+    std::pair<double, double> p_resists = {player.getPhysicalResist(false), player.getMagicalResist(false)};
+    std::pair<double, double> m_resists = {monster.getPhysicalResist(false), monster.getMagicalResist(false)};
 
     // battle intro, show monster info
 
